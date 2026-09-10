@@ -32,6 +32,10 @@ jobs:
           flutter create /tmp/flutter_app --platforms=android --project-name hamza_s_kardam_digital_app
           cp -R /tmp/flutter_app/android ./android
 
+      - name: Update Kotlin version
+        run: |
+          sed -i "s/id 'org.jetbrains.kotlin.android' version '[^']*'/id 'org.jetbrains.kotlin.android' version '1.9.24'/" android/settings.gradle
+
       - name: Get Dependencies
         run: flutter pub get
 
