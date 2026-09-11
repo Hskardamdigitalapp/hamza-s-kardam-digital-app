@@ -38,6 +38,10 @@ jobs:
           cp branding/kardam_launcher.xml android/app/src/main/res/drawable/kardam_launcher.xml
           sed -i 's#android:icon="@mipmap/ic_launcher"#android:icon="@drawable/kardam_launcher"#' android/app/src/main/AndroidManifest.xml
 
+      - name: Fix Android NDK
+        run: |
+          sed -i '/android {/a\    ndkVersion = "27.0.12077973"' android/app/build.gradle.kts
+
       - name: Check Android project
         run: |
           ls -la android
