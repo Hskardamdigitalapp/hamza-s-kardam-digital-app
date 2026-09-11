@@ -108,7 +108,7 @@ class WalletService {
 
   static Future<List<Map<String, dynamic>>> getAdminStats() async {
     if (!await isAdmin()) throw Exception('Admin access required.');
-    final profiles = await _client.from('profiles').select('id,full_name,email,phone,role,kyc_tier,kyc_status,kyc_method,kyc_reference');
+    final profiles = await _client.from('profiles').select('id,full_name,email,phone,role,kyc_tier,kyc_status,kyc_method,kyc_reference_last4');
     final transactions = await _client.from('transactions').select('id,status,amount,service,created_at').order('created_at', ascending: false).limit(100);
     final dataOrders = await _client.from('data_orders').select('id,status,amount,network,phone,plan,created_at').order('created_at', ascending: false).limit(100);
     final airtimeOrders = await _client.from('airtime_orders').select('id,status,amount,network,phone,created_at').order('created_at', ascending: false).limit(100);
