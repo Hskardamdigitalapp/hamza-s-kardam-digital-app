@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WalletService {
@@ -9,8 +10,12 @@ class WalletService {
 
   static Future<bool> isAdmin() async {
     if (currentUser == null) return false;
-    final result = await _client.rpc('is_admin');
-    return result == true;
+    try {
+      final result = await _client.rpc('is_admin');
+      return result == true;
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<double> getBalance() async {
@@ -26,6 +31,22 @@ class WalletService {
     if (user == null) return null;
     final row = await _client.from('profiles').select().eq('id', user.id).maybeSingle();
     return row;
+  }
+
+  static String? get avatarUrl => currentUser?.userMetadata?['avatar_url']?.toString();
+
+  static Future<String> uploadAvatar(Uint8List bytes) async {
+    final user = currentUser;
+    if (user == null) throw Exception('Please sign in again.');
+    final path = '${user.id}/avatar.jpg';
+    await _client.storage.from('avatars').uploadBinary(
+      path,
+      bytes,
+      fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true),
+    );
+    final url = _client.storage.from('avatars').getPublicUrl(path);
+    await _client.auth.updateUser(UserAttributes(data: {'avatar_url': url}));
+    return url;
   }
 
   static Future<List<Map<String, dynamic>>> getTransactions({int limit = 50}) async {
@@ -69,24 +90,13 @@ class WalletService {
     if (currentUser == null) throw Exception('Please sign in again.');
     if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
     final reference = 'AIR-${DateTime.now().microsecondsSinceEpoch}';
-    await _client.rpc('create_airtime_order', params: {
-      'p_network': network,
-      'p_phone': phone,
-      'p_amount': amount,
-      'p_reference': reference,
-    });
+    await _client.rpc('create_airtime_order', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_reference': reference});
   }
 
   static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
     if (currentUser == null) throw Exception('Please sign in again.');
     if (amount <= 0) throw Exception('Enter a valid amount.');
     final reference = 'DATA-${DateTime.now().microsecondsSinceEpoch}';
-    await _client.rpc('create_data_order', params: {
-      'p_network': network,
-      'p_phone': phone,
-      'p_plan': plan,
-      'p_amount': amount,
-      'p_reference': reference,
-    });
+    await _client.rpc('create_data_order', params: {'p_network': network, 'p_phone': phone, 'p_plan': plan, 'p_amount': amount, 'p_reference': reference});
   }
 }
