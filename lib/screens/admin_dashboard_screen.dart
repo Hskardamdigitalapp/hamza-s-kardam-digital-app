@@ -22,7 +22,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: _gold));
       if (snapshot.hasError) return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.lock_outline, size: 48, color: _navy), const SizedBox(height: 12), Text(snapshot.error.toString().replaceFirst('Exception: ', '')), const SizedBox(height: 12), ElevatedButton(onPressed: _refresh, child: const Text('Retry'))]));
       final data = snapshot.data ?? [];
-      final profiles = _find(data, 'profiles'); final transactions = _find(data, 'transactions'); final dataOrders = _find(data, 'data_orders'); final airtimeOrders = _find(data, 'airtime_orders'); final wallets = _find(data, 'wallets'); final cashRequests = _find(data, 'airtime_cash_requests');
+      final profiles = _find(data, 'profiles');
+      final transactions = _find(data, 'transactions');
+      final dataOrders = _find(data, 'data_orders');
+      final airtimeOrders = _find(data, 'airtime_orders');
+      final wallets = _find(data, 'wallets');
+      final cashRequests = _find(data, 'airtime_cash_requests');
       final pending = [...transactions, ...dataOrders, ...airtimeOrders, ...cashRequests].where((r) => r['status']?.toString().toLowerCase() == 'pending').length;
       final pendingKyc = profiles.where((p) => p['kyc_status']?.toString() == 'pending').toList();
       return RefreshIndicator(color: _gold, onRefresh: _refresh, child: ListView(padding: const EdgeInsets.all(16), children: [
@@ -40,11 +45,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _kycCard(Map<String,dynamic> row) {
     final method = row['kyc_method']?.toString().toUpperCase() ?? 'N/A';
-    final ref = row['kyc_reference']?.toString() ?? '';
     return Card(margin: const EdgeInsets.only(bottom: 10), child: Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(row['full_name']?.toString().isNotEmpty == true ? row['full_name'].toString() : 'Customer', style: const TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 16)),
-      Text('${row['email'] ?? ''} • ${row['phone'] ?? ''}'), Text('Requested Tier ${row['kyc_tier'] ?? 1} • $method • Ref: $ref'),
-      const SizedBox(height: 10), Wrap(spacing: 8, children: [OutlinedButton.icon(onPressed: () => _reviewKyc(row, 'verified', 2), icon: const Icon(Icons.verified), label: const Text('Approve Tier 2')), OutlinedButton.icon(onPressed: () => _reviewKyc(row, 'verified', 3), icon: const Icon(Icons.workspace_premium), label: const Text('Approve Tier 3')), OutlinedButton.icon(onPressed: () => _reviewKyc(row, 'rejected', 1), icon: const Icon(Icons.close), label: const Text('Reject'))]),
+      Text('${row['email'] ?? ''} • ${row['phone'] ?? ''}'),
+      Text('Verification method: $method • Requested Tier ${row['kyc_tier'] ?? 1}'),
+      const Text('Identity number hidden for security.', style: TextStyle(color: Colors.black54, fontSize: 12)),
+      const SizedBox(height: 10),
+      Wrap(spacing: 8, runSpacing: 8, children: [OutlinedButton.icon(onPressed: () => _reviewKyc(row, 'verified', 2), icon: const Icon(Icons.verified), label: const Text('Approve Tier 2')), OutlinedButton.icon(onPressed: () => _reviewKyc(row, 'verified', 3), icon: const Icon(Icons.workspace_premium), label: const Text('Approve Tier 3')), OutlinedButton.icon(onPressed: () => _reviewKyc(row, 'rejected', 1), icon: const Icon(Icons.close), label: const Text('Reject'))]),
     ])));
   }
 
@@ -53,7 +60,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')))); }
   }
 
-  Widget _cashRequestCard(Map<String, dynamic> row) {
+  Widget _cashRequestCard(Map<String,dynamic> row) {
     final status = row['status']?.toString() ?? 'pending';
     return Card(margin: const EdgeInsets.only(bottom: 10), child: Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [Expanded(child: Text('${row['network'] ?? ''} • ₦${row['amount'] ?? 0}', style: const TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 16))), _statusChip(status)]), const SizedBox(height: 8),
