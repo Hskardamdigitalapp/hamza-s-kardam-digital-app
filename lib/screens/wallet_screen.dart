@@ -19,6 +19,8 @@ class _WalletScreenState extends State<WalletScreen> {
   late Future<List<Map<String, dynamic>>> _accountsFuture;
   int _method = 0;
   final _amountController = TextEditingController();
+  Map<String, dynamic>? _generatedAccount;
+  bool _generating = false;
 
   @override
   void initState() {
@@ -138,6 +140,7 @@ class _WalletScreenState extends State<WalletScreen> {
     final accountNumber = account['account_number']?.toString() ?? '';
     final accountName = account['account_name']?.toString() ?? '';
     final charges = account['charges']?.toString();
+    final expires = account['expires_at']?.toString();
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -147,8 +150,9 @@ class _WalletScreenState extends State<WalletScreen> {
         const SizedBox(height: 14),
         _detail('Bank Name', bank),
         _detail('Account Number', accountNumber),
-        _detail('Account Name', accountName),
+        _detail('Account Name / Narration', accountName),
         if (charges?.isNotEmpty == true) _detail('Charges', charges!),
+        if (expires?.isNotEmpty == true) _detail('Expires', expires!),
         const SizedBox(height: 12),
         SizedBox(width: double.infinity, child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(backgroundColor: _navy, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 13)),
@@ -167,7 +171,7 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget _emptyAccounts() => Container(
     padding: const EdgeInsets.all(22),
     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
-    child: const Column(children: [Icon(Icons.account_balance_outlined, color: _gold, size: 48), SizedBox(height: 10), Text('No funding account is connected yet.', textAlign: TextAlign.center, style: TextStyle(color: _navy, fontSize: 18, fontWeight: FontWeight.w900)), SizedBox(height: 7), Text('We will show the real bank name, account number and account name here after a virtual-account provider is connected. No fake account number is used.', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54, height: 1.35))]),
+    child: const Column(children: [Icon(Icons.account_balance_outlined, color: _gold, size: 48), SizedBox(height: 10), Text('No funding account is connected yet.', textAlign: TextAlign.center, style: TextStyle(color: _navy, fontSize: 18, fontWeight: FontWeight.w900)), SizedBox(height: 7), Text('Bank transfer accounts will appear here when a real virtual-account provider is configured. No fake account number is used.', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54, height: 1.35))]),
   );
 
   Widget _dynamicSection() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -185,23 +189,59 @@ class _WalletScreenState extends State<WalletScreen> {
         const SizedBox(height: 14),
         Container(padding: const EdgeInsets.all(13), decoration: BoxDecoration(color: const Color(0xFFFFF8DF), borderRadius: BorderRadius.circular(14)), child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.info_outline, color: _gold), SizedBox(width: 9), Expanded(child: Text('The account is temporary. Transfer the exact amount before it expires.'))])),
         const SizedBox(height: 16),
-        SizedBox(width: double.infinity, child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: _goldLight, foregroundColor: _navy, padding: const EdgeInsets.symmetric(vertical: 15)), onPressed: _generateDynamic, icon: const Icon(Icons.bolt), label: const Text('Generate Account', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)))),
+        if (_generatedAccount != null) ...[
+          _generatedAccountCard(_generatedAccount!),
+          const SizedBox(height: 14),
+        ],
+        SizedBox(width: double.infinity, child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: _goldLight, foregroundColor: _navy, padding: const EdgeInsets.symmetric(vertical: 15)), onPressed: _generating ? null : _generateDynamic, icon: _generating ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: _navy)) : const Icon(Icons.bolt), label: Text(_generating ? 'Generating...' : 'Generate Account', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)))),
       ]),
     ),
   ]);
 
-  void _generateDynamic() {
+  Widget _generatedAccountCard(Map<String, dynamic> account) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(color: const Color(0xFFFFF8DF), borderRadius: BorderRadius.circular(18), border: Border.all(color: _gold)),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const Text('Transfer to this account', style: TextStyle(color: _navy, fontSize: 17, fontWeight: FontWeight.w900)),
+      const SizedBox(height: 10),
+      _detail('Bank Name', account['bank_name']?.toString() ?? ''),
+      _detail('Account Number', account['account_number']?.toString() ?? ''),
+      _detail('Account Name / Narration', account['account_name']?.toString() ?? 'HAMZA S. KARDAM DIGITAL APP'),
+      _detail('Amount', '₦${(double.tryParse(account['amount']?.toString() ?? '') ?? 0).toStringAsFixed(2)}'),
+      if (account['expires_at']?.toString().isNotEmpty == true) _detail('Expires', account['expires_at'].toString()),
+      const SizedBox(height: 10),
+      SizedBox(width: double.infinity, child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: _navy, foregroundColor: Colors.white), onPressed: () => _copy(account['account_number']?.toString() ?? '', 'Account number copied'), icon: const Icon(Icons.copy), label: const Text('Copy Account Number'))),
+    ]),
+  );
+
+  Future<void> _generateDynamic() async {
     final amount = double.tryParse(_amountController.text.trim()) ?? 0;
     if (amount < 100) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter at least ₦100.')));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dynamic funding provider is not connected yet. No account was generated.')));
+    setState(() => _generating = true);
+    try {
+      final account = await WalletService.createDynamicFunding(amount);
+      if (!mounted) return;
+      setState(() {
+        _generatedAccount = account;
+        _accountsFuture = WalletService.getFundingAccounts();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Funding account generated. Transfer the exact amount before it expires.')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))));
+    } finally {
+      if (mounted) setState(() => _generating = false);
+    }
   }
 
   Widget _notice(IconData icon, String text) => Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)), child: Row(children: [Icon(icon, color: _gold), const SizedBox(width: 10), Expanded(child: Text(text, style: const TextStyle(color: _navy, fontWeight: FontWeight.w700)))]));
 
   void _copy(String value, String message) {
+    if (value.isEmpty) return;
     Clipboard.setData(ClipboardData(text: value));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
