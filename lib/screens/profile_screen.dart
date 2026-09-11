@@ -7,6 +7,7 @@ const _card = Color(0xFF1B1B1D);
 const _gold = Color(0xFFFFC83D);
 const _muted = Color(0xFF9B9BA6);
 const _navy = Color(0xFF061B49);
+const _danger = Color(0xFFD32F2F);
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,55 +41,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         const Text('Enter your NIN or BVN. You can see the number while typing so you can check and correct any mistake before submitting.'),
         const SizedBox(height: 14),
-        DropdownButtonFormField<String>(
-          value: method,
-          decoration: const InputDecoration(labelText: 'Verification method'),
-          items: const [
-            DropdownMenuItem(value: 'NIN', child: Text('NIN')),
-            DropdownMenuItem(value: 'BVN', child: Text('BVN')),
-          ],
-          onChanged: (v) => setDialog(() => method = v!),
-        ),
+        DropdownButtonFormField<String>(value: method, decoration: const InputDecoration(labelText: 'Verification method'), items: const [DropdownMenuItem(value: 'NIN', child: Text('NIN')), DropdownMenuItem(value: 'BVN', child: Text('BVN'))], onChanged: (v) => setDialog(() => method = v!)),
         const SizedBox(height: 12),
-        TextField(
-          controller: ref,
-          keyboardType: TextInputType.number,
-          maxLength: 11,
-          autofocus: true,
-          autocorrect: false,
-          enableSuggestions: false,
-          decoration: InputDecoration(
-            labelText: '$method number',
-            prefixIcon: const Icon(Icons.verified_user_outlined),
-            suffixIcon: IconButton(
-              tooltip: 'Clear number',
-              icon: const Icon(Icons.clear),
-              onPressed: () => setDialog(ref.clear),
-            ),
-            counterText: '',
-            helperText: '11 digits • Visible while entering',
-          ),
-        ),
+        TextField(controller: ref, keyboardType: TextInputType.number, maxLength: 11, autofocus: true, autocorrect: false, enableSuggestions: false, decoration: InputDecoration(labelText: '$method number', prefixIcon: const Icon(Icons.verified_user_outlined), suffixIcon: IconButton(tooltip: 'Clear number', icon: const Icon(Icons.clear), onPressed: () => setDialog(ref.clear)), counterText: '', helperText: '11 digits • Visible while entering')),
       ]),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(ctx, RegExp(r'^\d{11}$').hasMatch(ref.text.trim())),
-          child: const Text('Submit'),
-        ),
-      ],
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')), ElevatedButton(onPressed: () => Navigator.pop(ctx, RegExp(r'^\d{11}$').hasMatch(ref.text.trim())), child: const Text('Submit'))],
     )));
-    if (result != true) {
-      ref.dispose();
-      if (result == false && mounted) _snack('Enter a valid 11-digit $method number.');
-      return;
-    }
-    try {
-      await WalletService.requestKycUpgrade(method: method, reference: ref.text.trim(), targetTier: tier);
-      if (mounted) { setState(_load); _snack('Identity verification submitted securely.'); }
-    } catch (e) {
-      if (mounted) _snack(e.toString().replaceFirst('Exception: ', ''));
-    }
+    if (result != true) { ref.dispose(); if (result == false && mounted) _snack('Enter a valid 11-digit $method number.'); return; }
+    try { await WalletService.requestKycUpgrade(method: method, reference: ref.text.trim(), targetTier: tier); if (mounted) { setState(_load); _snack('Identity verification submitted securely.'); } } catch (e) { if (mounted) _snack(e.toString().replaceFirst('Exception: ', '')); }
     ref.dispose();
   }
 
@@ -107,44 +67,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final k = ks.data ?? {};
           final tier = int.tryParse('${k['tier'] ?? 1}') ?? 1;
           final status = '${k['status'] ?? 'unverified'}';
-          return RefreshIndicator(
-            color: _gold,
-            onRefresh: () async { setState(_load); await _kycFuture; },
-            child: ListView(padding: const EdgeInsets.fromLTRB(18, 8, 18, 110), children: [
-              Center(child: Stack(children: [
-                CircleAvatar(radius: 48, backgroundColor: _gold, backgroundImage: avatar?.isNotEmpty == true ? NetworkImage(avatar!) : null, child: avatar?.isNotEmpty == true ? null : const Icon(Icons.person, size: 50, color: Colors.black)),
-                Positioned(right: 0, bottom: 0, child: Material(color: _gold, shape: const CircleBorder(), child: InkWell(onTap: _uploading ? null : _pickPhoto, customBorder: const CircleBorder(), child: Padding(padding: const EdgeInsets.all(9), child: Icon(_uploading ? Icons.hourglass_top : Icons.camera_alt, color: Colors.black, size: 18))))),
-              ])),
-              const SizedBox(height: 10),
-              Center(child: Text(name, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900))),
-              Center(child: Text(phone.isNotEmpty ? phone : email, style: const TextStyle(color: _muted))),
-              const SizedBox(height: 22),
-              _limitsCard(tier),
-              const SizedBox(height: 14),
-              _tierUpgradeCard(tier, status),
-              const SizedBox(height: 14),
-              _item(Icons.receipt_long_outlined, 'Transaction History', 'Review your past transactions', () => Navigator.pushNamed(context, '/transactions')),
-              _item(Icons.dialpad_outlined, 'Transaction PIN', 'Change your transaction PIN', () => _snack('Transaction PIN will be secured before it is enabled for wallet payments.')),
-              _item(Icons.fingerprint, 'Biometrics', 'Register your fingerprint / face ID', () => _snack('Device biometric authentication will be used for supported secure actions.')),
-              _item(Icons.lock_reset, 'Change Password', 'Update your login password', () => _snack('Password reset is available from the login screen.')),
-              _item(Icons.card_giftcard, 'Refer & Earn', 'Invite friends and earn rewards', () => _snack('Referral rewards will activate with the rewards backend.')),
-              _item(Icons.dark_mode_outlined, 'Appearance', 'Choose how the app looks', () => _snack('Dark mode is currently active.')),
-              _item(Icons.headset_mic_outlined, 'Customer Support', 'Access help and support', () => _snack('Customer support is available through the app support channel.')),
-              _item(Icons.delete_outline, 'Delete Account', 'Permanently remove your account', _confirmDelete),
-              FutureBuilder<bool>(future: _adminFuture, builder: (context, a) => a.data == true ? _item(Icons.admin_panel_settings_outlined, 'Admin Dashboard', 'Manage users, KYC and service activity', () => Navigator.pushNamed(context, '/admin')) : const SizedBox.shrink()),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(onPressed: () async { await WalletService.logout(); if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); }, icon: const Icon(Icons.logout), label: const Text('Logout'), style: OutlinedButton.styleFrom(foregroundColor: _gold, side: const BorderSide(color: _gold))),
-            ]),
-          );
+          return RefreshIndicator(color: _gold, onRefresh: () async { setState(_load); await _kycFuture; }, child: ListView(padding: const EdgeInsets.fromLTRB(18, 8, 18, 110), children: [
+            Center(child: Stack(children: [CircleAvatar(radius: 48, backgroundColor: _gold, backgroundImage: avatar?.isNotEmpty == true ? NetworkImage(avatar!) : null, child: avatar?.isNotEmpty == true ? null : const Icon(Icons.person, size: 50, color: Colors.black)), Positioned(right: 0, bottom: 0, child: Material(color: _gold, shape: const CircleBorder(), child: InkWell(onTap: _uploading ? null : _pickPhoto, customBorder: const CircleBorder(), child: Padding(padding: const EdgeInsets.all(9), child: Icon(_uploading ? Icons.hourglass_top : Icons.camera_alt, color: Colors.black, size: 18)))))])),
+            const SizedBox(height: 10), Center(child: Text(name, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900))),
+            Center(child: Text(phone.isNotEmpty ? phone : email, style: const TextStyle(color: _muted))),
+            const SizedBox(height: 22), _limitsCard(tier), const SizedBox(height: 14), _tierUpgradeCard(tier, status), const SizedBox(height: 14),
+            _item(Icons.receipt_long_outlined, 'Transaction History', 'Review your past transactions', () => Navigator.pushNamed(context, '/transactions')),
+            _item(Icons.dialpad_outlined, 'Transaction PIN', 'Change your transaction PIN', () => _snack('Transaction PIN will be secured before it is enabled for wallet payments.')),
+            _item(Icons.fingerprint, 'Biometrics', 'Register your fingerprint / face ID', () => _snack('Device biometric authentication will be used for supported secure actions.')),
+            _item(Icons.lock_reset, 'Change Password', 'Update your login password', () => _snack('Password reset is available from the login screen.')),
+            _item(Icons.card_giftcard, 'Refer & Earn', 'Invite friends and earn rewards', () => _snack('Referral rewards will activate with the rewards backend.')),
+            _item(Icons.dark_mode_outlined, 'Appearance', 'Choose how the app looks', () => _snack('Dark mode is currently active.')),
+            _item(Icons.headset_mic_outlined, 'Customer Support', 'Access help and support', () => _snack('Customer support is available through the app support channel.')),
+            _item(Icons.delete_forever_outlined, 'Delete Account', 'Permanently remove your account', _confirmDelete, danger: true),
+            FutureBuilder<bool>(future: _adminFuture, builder: (context, a) => a.data == true ? _item(Icons.admin_panel_settings_outlined, 'Admin Dashboard', 'Manage users, KYC and service activity', () => Navigator.pushNamed(context, '/admin')) : const SizedBox.shrink()),
+            const SizedBox(height: 12), OutlinedButton.icon(onPressed: () async { await WalletService.logout(); if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); }, icon: const Icon(Icons.logout), label: const Text('Logout'), style: OutlinedButton.styleFrom(foregroundColor: _gold, side: const BorderSide(color: _gold))),
+          ]));
         });
       }),
-      bottomNavigationBar: NavigationBar(backgroundColor: _card, indicatorColor: _gold.withOpacity(.25), selectedIndex: 4, onDestinationSelected: (i) { if (i == 0) Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false); if (i == 1) Navigator.pushNamed(context, '/orders'); if (i == 2) Navigator.pushNamed(context, '/transactions'); if (i == 3) Navigator.pushNamed(context, '/wallet'); }, destinations: const [
-        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home, color: _gold), label: 'Home'),
-        NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'Orders'),
-        NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Transactions'),
-        NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Wallet'),
-        NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person, color: _gold), label: 'Profile'),
-      ]),
+      bottomNavigationBar: NavigationBar(backgroundColor: _card, indicatorColor: _gold.withOpacity(.25), selectedIndex: 4, onDestinationSelected: (i) { if (i == 0) Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false); if (i == 1) Navigator.pushNamed(context, '/orders'); if (i == 2) Navigator.pushNamed(context, '/transactions'); if (i == 3) Navigator.pushNamed(context, '/wallet'); }, destinations: const [NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home, color: _gold), label: 'Home'), NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'Orders'), NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Transactions'), NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Wallet'), NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person, color: _gold), label: 'Profile')]),
       floatingActionButton: FloatingActionButton(onPressed: () => _snack('Customer support: please use our WhatsApp support channel.'), backgroundColor: _gold, foregroundColor: Colors.black, child: const Icon(Icons.support_agent)),
     );
   }
@@ -152,35 +93,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _limitsCard(int tier) {
     final wallet = tier >= 3 ? '₦5,000,000' : tier >= 2 ? '₦500,000' : '₦50,000';
     final today = tier >= 3 ? '₦3,000,000' : tier >= 2 ? '₦100,000' : '₦20,000';
-    return Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(22)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [const Icon(Icons.account_balance_wallet, color: _gold), const SizedBox(width: 10), const Text('Wallet & Limits', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800)), const Spacer(), _badge('Tier $tier')]),
-      const SizedBox(height: 16), _limit('Wallet', wallet), _limit('Today', today),
-    ]));
+    return Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(22)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [const Icon(Icons.account_balance_wallet, color: _gold), const SizedBox(width: 10), const Text('Wallet & Limits', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800)), const Spacer(), _badge('Tier $tier')]), const SizedBox(height: 16), _limit('Wallet', wallet), _limit('Today', today)]));
   }
-
   Widget _tierUpgradeCard(int tier, String status) {
-    final next = tier >= 3 ? 3 : tier + 1;
-    final pending = status == 'pending';
-    return Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), border: Border.all(color: _gold.withOpacity(.65)), gradient: const LinearGradient(colors: [Color(0xFF202022), Color(0xFF151516)])), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [const Icon(Icons.workspace_premium, color: _gold), const SizedBox(width: 10), const Text('TIER UPGRADE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5)), const Spacer(), _badge(tier >= 3 ? 'Tier 3' : 'Tier $next')]),
-      const SizedBox(height: 18),
-      Text(tier >= 3 ? 'You are on Tier 3' : 'Unlock Tier $next', style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900)),
-      const SizedBox(height: 6),
-      Text(tier >= 3 ? 'Maximum available tier.' : 'Verify your identity to raise your limits and unlock more services.', style: const TextStyle(color: _muted, fontSize: 15)),
-      const SizedBox(height: 16),
-      if (tier < 3) ...[
-        _benefit(Icons.account_balance_wallet, tier == 1 ? 'Wallet cap raised to ₦500,000' : 'Wallet cap raised to ₦5,000,000'),
-        _benefit(Icons.bolt, tier == 1 ? 'Unlock Airtime to Cash after Tier 2 verification' : 'Higher transaction limits'),
-        _benefit(Icons.shield_outlined, 'Stronger account security and service access'),
-        const SizedBox(height: 6),
-      ],
-      if (tier < 3) SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: pending ? null : () => _verify(next), icon: Icon(pending ? Icons.hourglass_top : Icons.arrow_forward), label: Text(pending ? 'Verification Pending' : 'Start verification'), style: ElevatedButton.styleFrom(backgroundColor: _gold, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))))) else const Text('✓ Identity verified', style: TextStyle(color: _gold, fontWeight: FontWeight.bold)),
-    ]));
+    final next = tier >= 3 ? 3 : tier + 1; final pending = status == 'pending';
+    return Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), border: Border.all(color: _gold.withOpacity(.65)), gradient: const LinearGradient(colors: [Color(0xFF202022), Color(0xFF151516)])), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [const Icon(Icons.workspace_premium, color: _gold), const SizedBox(width: 10), const Text('TIER UPGRADE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5)), const Spacer(), _badge(tier >= 3 ? 'Tier 3' : 'Tier $next')]), const SizedBox(height: 18), Text(tier >= 3 ? 'You are on Tier 3' : 'Unlock Tier $next', style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900)), const SizedBox(height: 6), Text(tier >= 3 ? 'Maximum available tier.' : 'Verify your identity to raise your limits and unlock more services.', style: const TextStyle(color: _muted, fontSize: 15)), const SizedBox(height: 16), if (tier < 3) ...[_benefit(Icons.account_balance_wallet, tier == 1 ? 'Wallet cap raised to ₦500,000' : 'Wallet cap raised to ₦5,000,000'), _benefit(Icons.bolt, tier == 1 ? 'Unlock Airtime to Cash after Tier 2 verification' : 'Higher transaction limits'), _benefit(Icons.shield_outlined, 'Stronger account security and service access'), const SizedBox(height: 6)], if (tier < 3) SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: pending ? null : () => _verify(next), icon: Icon(pending ? Icons.hourglass_top : Icons.arrow_forward), label: Text(pending ? 'Verification Pending' : 'Start verification'), style: ElevatedButton.styleFrom(backgroundColor: _gold, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))))) else const Text('✓ Identity verified', style: TextStyle(color: _gold, fontWeight: FontWeight.bold))]));
   }
-
   Widget _benefit(IconData icon, String text) => Padding(padding: const EdgeInsets.only(bottom: 10), child: Row(children: [Icon(icon, color: _gold, size: 22), const SizedBox(width: 12), Expanded(child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)))]));
   Widget _limit(String a, String b) => Padding(padding: const EdgeInsets.only(bottom: 10), child: Row(children: [Text(a, style: const TextStyle(color: _muted)), const Spacer(), Text(b, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800))]));
   Widget _badge(String text) => Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7), decoration: BoxDecoration(color: _gold, borderRadius: BorderRadius.circular(18)), child: Text(text, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900)));
-  Widget _item(IconData icon, String title, String sub, VoidCallback tap) => Container(margin: const EdgeInsets.only(bottom: 10), decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(20)), child: ListTile(contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), leading: Container(width: 52, height: 52, decoration: const BoxDecoration(color: _gold, shape: BoxShape.circle), child: Icon(icon, color: Colors.black)), title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)), subtitle: Text(sub, style: const TextStyle(color: _muted)), trailing: const Icon(Icons.chevron_right, color: _muted), onTap: tap));
-  Future<void> _confirmDelete() async { final ok = await showDialog<bool>(context: context, builder: (c) => AlertDialog(title: const Text('Delete Account?'), content: const Text('Account deletion is not enabled until the secure deletion workflow is configured.'), actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')), TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Continue'))])); if (ok == true && mounted) _snack('Your account remains safe because deletion is not enabled yet.'); }
+  Widget _item(IconData icon, String title, String sub, VoidCallback tap, {bool danger = false}) => Container(margin: const EdgeInsets.only(bottom: 10), decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(20), border: danger ? Border.all(color: _danger.withOpacity(.75)) : null), child: ListTile(contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), leading: Container(width: 52, height: 52, decoration: BoxDecoration(color: danger ? _danger.withOpacity(.16) : _gold, shape: BoxShape.circle), child: Icon(icon, color: danger ? _danger : Colors.black)), title: Text(title, style: TextStyle(color: danger ? _danger : Colors.white, fontSize: 17, fontWeight: FontWeight.w800)), subtitle: Text(sub, style: TextStyle(color: danger ? Colors.white70 : _muted)), trailing: Icon(Icons.chevron_right, color: danger ? _danger : _muted), onTap: tap));
+  Future<void> _confirmDelete() async {
+    await showDialog<void>(context: context, builder: (c) => AlertDialog(
+      title: Row(children: [const Icon(Icons.warning_amber_rounded, color: _danger, size: 30), const SizedBox(width: 10), const Expanded(child: Text('Delete Account?'))]),
+      content: const Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Permanently remove your account', style: TextStyle(color: _danger, fontWeight: FontWeight.w900, fontSize: 16)), SizedBox(height: 10), Text('This action is permanent and cannot be undone. Account deletion is not available yet because the secure deletion workflow is still being configured.')]),
+      actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text('Close'))],
+    ));
+  }
 }
