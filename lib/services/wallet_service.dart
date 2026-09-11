@@ -36,6 +36,24 @@ class WalletService {
     return url;
   }
 
+  static Future<List<Map<String, dynamic>>> getFundingAccounts() async {
+    if (currentUser == null) return [];
+    final rows = await _client
+        .from('wallet_funding_accounts')
+        .select('id,label,provider,bank_name,account_number,account_name,charges,currency,is_active,metadata')
+        .eq('is_active', true)
+        .or('user_id.is.null,user_id.eq.${currentUser!.id}')
+        .order('created_at');
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<List<Map<String, dynamic>>> getDeposits({int limit = 50}) async {
+    final user = currentUser;
+    if (user == null) return [];
+    final rows = await _client.from('wallet_deposits').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
   static Future<List<Map<String, dynamic>>> getTransactions({int limit = 50}) async {
     final user = currentUser;
     if (user == null) return [];
