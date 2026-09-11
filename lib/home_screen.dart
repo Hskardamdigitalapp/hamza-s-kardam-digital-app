@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('HAMZA S. KARDAM', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [IconButton(onPressed: _logout, icon: const Icon(Icons.logout))],
+        actions: [IconButton(onPressed: () => Navigator.pushNamed(context, '/profile'), icon: const Icon(Icons.person_outline))],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ]),
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: _serviceCard(Icons.receipt_long, 'My Orders', () => Navigator.pushNamed(context, '/transactions'))),
+              Expanded(child: _serviceCard(Icons.shopping_bag_outlined, 'My Orders', () => Navigator.pushNamed(context, '/orders'))),
               const SizedBox(width: 12),
               Expanded(child: _serviceCard(Icons.history, 'Transactions', () => Navigator.pushNamed(context, '/transactions'))),
             ]),
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.green,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
-          if (index == 1) Navigator.pushNamed(context, '/transactions');
+          if (index == 1) Navigator.pushNamed(context, '/orders');
           if (index == 2) Navigator.pushNamed(context, '/wallet');
           if (index == 3) _showMore();
         },
@@ -138,11 +138,16 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   void _showMore() {
-    showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      ListTile(leading: const Icon(Icons.account_balance_wallet), title: const Text('Wallet'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/wallet'); }),
-      ListTile(leading: const Icon(Icons.history), title: const Text('Transactions'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/transactions'); }),
-      ListTile(leading: const Icon(Icons.person_outline), title: const Text('Profile'), subtitle: Text(WalletService.currentUser?.email ?? ''), onTap: () => Navigator.pop(context)),
-      ListTile(leading: const Icon(Icons.logout), title: const Text('Logout'), onTap: () { Navigator.pop(context); _logout(); }),
-    ])));
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(leading: const Icon(Icons.person_outline), title: const Text('Profile'), subtitle: Text(WalletService.currentUser?.email ?? ''), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/profile'); }),
+        ListTile(leading: const Icon(Icons.account_balance_wallet), title: const Text('Wallet'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/wallet'); }),
+        ListTile(leading: const Icon(Icons.shopping_bag_outlined), title: const Text('My Orders'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/orders'); }),
+        ListTile(leading: const Icon(Icons.history), title: const Text('Transactions'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/transactions'); }),
+        ListTile(leading: const Icon(Icons.logout), title: const Text('Logout'), onTap: () { Navigator.pop(context); _logout(); }),
+      ])),
+    );
   }
 }
