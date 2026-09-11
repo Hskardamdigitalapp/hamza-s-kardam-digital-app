@@ -9,7 +9,6 @@ const _bg = Color(0xFFF5F7FB);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -40,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = WalletService.currentUser;
     final name = user?.userMetadata?['full_name']?.toString().trim();
     final avatar = WalletService.avatarUrl;
-
     return Scaffold(
       backgroundColor: _bg,
       body: RefreshIndicator(
@@ -83,36 +81,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
-                        child: Text(
-                          'HK',
-                          style: TextStyle(
-                            color: _navy,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 17,
-                          ),
-                        ),
+                        child: Text('HK', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 17)),
                       ),
                     ),
                     const SizedBox(width: 10),
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'HAMZA S. KARDAM',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15,
-                          ),
-                        ),
-                        Text(
-                          'DIGITAL APP',
-                          style: TextStyle(
-                            color: _goldLight,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
+                        Text('HAMZA S. KARDAM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
+                        Text('DIGITAL APP', style: TextStyle(color: _goldLight, fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ],
@@ -120,59 +97,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 22),
                 Text(
                   'Hello, ${name?.isNotEmpty == true ? name : 'Welcome'} 👋',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 24,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24),
                 ),
                 const SizedBox(height: 3),
-                const Text(
-                  'Fast • Reliable • Secure',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
+                const Text('Fast • Reliable • Secure', style: TextStyle(color: Colors.white70, fontSize: 14)),
               ],
             ),
           ),
           Column(
             children: [
-              Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/profile'),
-                    child: CircleAvatar(
-                      radius: 31,
-                      backgroundColor: _goldLight,
-                      backgroundImage: avatar?.isNotEmpty == true
-                          ? NetworkImage(avatar!)
-                          : null,
-                      child: avatar?.isNotEmpty == true
-                          ? null
-                          : const Icon(Icons.person, color: _navy, size: 34),
-                    ),
-                  ),
-                  Positioned(
-                    right: -1,
-                    bottom: -1,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: _gold,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.camera_alt, size: 15, color: _navy),
-                    ),
-                  ),
-                ],
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/profile'),
+                child: CircleAvatar(
+                  radius: 31,
+                  backgroundColor: _goldLight,
+                  backgroundImage: avatar?.isNotEmpty == true ? NetworkImage(avatar!) : null,
+                  child: avatar?.isNotEmpty == true ? null : const Icon(Icons.person, color: _navy, size: 34),
+                ),
               ),
               const SizedBox(height: 10),
               IconButton(
                 onPressed: () => _soon('Notifications'),
-                icon: const Icon(
-                  Icons.notifications_none,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                icon: const Icon(Icons.notifications_none, color: Colors.white, size: 28),
               ),
             ],
           ),
@@ -190,9 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
           gradient: const LinearGradient(colors: [_navy2, _navy]),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: _gold, width: 1.4),
-          boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 18, offset: Offset(0, 8)),
-          ],
         ),
         child: FutureBuilder<double>(
           future: _balanceFuture,
@@ -205,31 +148,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Icon(Icons.account_balance_wallet_outlined, color: _goldLight),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Wallet Balance',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    const Text('Wallet Balance', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     const Spacer(),
                     IconButton(
                       onPressed: () => setState(() => _hideBalance = !_hideBalance),
-                      icon: Icon(
-                        _hideBalance ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.white70,
-                      ),
+                      icon: Icon(_hideBalance ? Icons.visibility_off : Icons.visibility, color: Colors.white70),
                     ),
                   ],
                 ),
                 Text(
                   _hideBalance ? '₦ ••••••' : '₦${b.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -239,14 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () => Navigator.pushNamed(context, '/wallet'),
                         icon: const Icon(Icons.add),
                         label: const Text('Fund Wallet'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _goldLight,
-                          foregroundColor: _navy,
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -255,14 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: _showMore,
                         icon: const Icon(Icons.more_horiz),
                         label: const Text('More Options'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: _gold),
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -296,45 +209,18 @@ class _HomeScreenState extends State<HomeScreen> {
       _Service(Icons.person_add_alt_1, 'Send to User', () => _soon('Send to User')),
       _Service(Icons.savings, 'Earn', () => _soon('Earn')),
     ];
-
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 12, 10, 16),
       padding: const EdgeInsets.fromLTRB(12, 18, 12, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, 5)),
-        ],
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
       child: Column(
         children: [
-          Row(
-            children: [
-              const Text(
-                'Our Services',
-                style: TextStyle(color: _navy, fontSize: 22, fontWeight: FontWeight.w900),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Show all',
-                  style: TextStyle(color: _gold, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
+          Row(children: [const Text('Our Services', style: TextStyle(color: _navy, fontSize: 22, fontWeight: FontWeight.w900)), const Spacer(), TextButton(onPressed: () {}, child: const Text('Show all', style: TextStyle(color: _gold, fontWeight: FontWeight.bold)))]),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: services.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 8,
-              childAspectRatio: .78,
-            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 14, crossAxisSpacing: 8, childAspectRatio: .78),
             itemBuilder: (_, i) => _tile(services[i]),
           ),
         ],
@@ -345,51 +231,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _tile(_Service service) {
     return InkWell(
       onTap: service.onTap,
-      borderRadius: BorderRadius.circular(14),
       child: Stack(
         children: [
-          Column(
-            children: [
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: _navy.withOpacity(.055),
-                  borderRadius: BorderRadius.circular(17),
-                ),
-                child: Icon(service.icon, color: _navy, size: 31),
-              ),
-              const SizedBox(height: 7),
-              Expanded(
-                child: Text(
-                  service.label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _navy,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    height: 1.1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (service.hot)
-            Positioned(
-              top: -2,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: _goldLight,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'HOT',
-                  style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 8),
-                ),
-              ),
-            ),
+          Column(children: [Container(width: 58, height: 58, decoration: BoxDecoration(color: _navy.withOpacity(.055), borderRadius: BorderRadius.circular(17)), child: Icon(service.icon, color: _navy, size: 31)), const SizedBox(height: 7), Expanded(child: Text(service.label, textAlign: TextAlign.center, style: const TextStyle(color: _navy, fontWeight: FontWeight.w700, fontSize: 12, height: 1.1)))]),
+          if (service.hot) Positioned(top: -2, right: 0, child: Container(padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2), decoration: BoxDecoration(color: _goldLight, borderRadius: BorderRadius.circular(8)), child: const Text('HOT', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 8)))),
         ],
       ),
     );
@@ -399,36 +244,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [_navy, _navy2]),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(gradient: const LinearGradient(colors: [_navy, _navy2]), borderRadius: BorderRadius.circular(20)),
       child: const Row(
         children: [
-          SizedBox(
-            width: 48,
-            height: 48,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: _goldLight, shape: BoxShape.circle),
-              child: Icon(Icons.chat, color: _navy, size: 28),
-            ),
-          ),
+          CircleAvatar(backgroundColor: _goldLight, child: Icon(Icons.chat, color: _navy)),
           SizedBox(width: 13),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Buy on WhatsApp',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900),
-                ),
-                Text(
-                  'Data, airtime & bills — chat with us',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buy on WhatsApp', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900)), Text('Data, airtime & bills — chat with us', style: TextStyle(color: Colors.white70, fontSize: 12))])),
           Icon(Icons.arrow_forward_ios, color: _goldLight, size: 18),
         ],
       ),
@@ -438,8 +259,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _bottomNav() {
     return NavigationBar(
       selectedIndex: 0,
-      backgroundColor: Colors.white,
-      indicatorColor: _goldLight.withOpacity(.35),
       onDestinationSelected: (i) {
         if (i == 1) Navigator.pushNamed(context, '/orders');
         if (i == 2) Navigator.pushNamed(context, '/transactions');
@@ -447,11 +266,11 @@ class _HomeScreenState extends State<HomeScreen> {
         if (i == 4) Navigator.pushNamed(context, '/profile');
       },
       destinations: const [
-        NavigationDestination(icon: Icon(Icons.home_outlined, color: _navy), selectedIcon: Icon(Icons.home, color: _navy), label: 'Home'),
-        NavigationDestination(icon: Icon(Icons.receipt_long_outlined, color: _navy), label: 'My Orders'),
-        NavigationDestination(icon: Icon(Icons.swap_horiz, color: _navy), label: 'Transactions'),
-        NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined, color: _navy), label: 'Wallet'),
-        NavigationDestination(icon: Icon(Icons.person_outline, color: _navy), label: 'Profile'),
+        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+        NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'My Orders'),
+        NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Transactions'),
+        NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Wallet'),
+        NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile'),
       ],
     );
   }
@@ -459,41 +278,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showMore() {
     showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
-      backgroundColor: Colors.white,
       builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.person, color: _navy),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.history, color: _navy),
-              title: const Text('Transactions'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/transactions');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: _navy),
-              title: const Text('Logout'),
-              onTap: () async {
-                Navigator.pop(context);
-                await WalletService.logout();
-                if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
-                }
-              },
-            ),
-          ],
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(leading: const Icon(Icons.person), title: const Text('Profile'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/profile'); }),
+          ListTile(leading: const Icon(Icons.history), title: const Text('Transactions'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/transactions'); }),
+          ListTile(leading: const Icon(Icons.logout), title: const Text('Logout'), onTap: () async { Navigator.pop(context); await WalletService.logout(); if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); }),
+        ]),
       ),
     );
   }
@@ -504,6 +294,5 @@ class _Service {
   final String label;
   final VoidCallback onTap;
   final bool hot;
-
   const _Service(this.icon, this.label, this.onTap, [this.hot = false]);
 }
