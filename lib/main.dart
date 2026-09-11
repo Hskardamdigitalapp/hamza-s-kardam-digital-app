@@ -7,6 +7,7 @@ import 'screens/wallet_screen.dart';
 import 'screens/transactions_screen.dart';
 import 'screens/data_screen.dart';
 import 'screens/airtime_screen.dart';
+import 'screens/airtime_to_cash_screen.dart';
 import 'screens/orders_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
@@ -25,14 +26,18 @@ class KardamDigitalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const navy = Color(0xFF061B49);
+    const gold = Color(0xFFC89B3C);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HAMZA S. KARDAM DIGITAL APP',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0A8F55)),
-        scaffoldBackgroundColor: const Color(0xFFF6F8F7),
+        colorScheme: ColorScheme.fromSeed(seedColor: navy),
+        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
         fontFamily: 'Roboto',
+        appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white),
+        inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5))),
       ),
       routes: {
         '/login': (_) => const LoginScreen(),
@@ -44,6 +49,7 @@ class KardamDigitalApp extends StatelessWidget {
         '/profile': (_) => const ProfileScreen(),
         '/data': (_) => const DataScreen(),
         '/airtime': (_) => const AirtimeScreen(),
+        '/airtime-to-cash': (_) => const AirtimeToCashScreen(),
         '/admin': (_) => const AdminDashboardScreen(),
       },
       home: const AuthGate(),
