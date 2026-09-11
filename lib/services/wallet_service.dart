@@ -42,6 +42,8 @@ class WalletService {
 
   static Future<Map<String, dynamic>> requestKycUpgrade({required String method, required String reference, required int targetTier}) async {
     if (currentUser == null) throw Exception('Please sign in again.');
+    if (method != 'NIN' && method != 'BVN') throw Exception('Choose NIN or BVN.');
+    if (!RegExp(r'^\d{11}$').hasMatch(reference.trim())) throw Exception('$method must be 11 digits.');
     final result = await _client.rpc('request_kyc_upgrade', params: {
       'p_method': method.toLowerCase(), 'p_reference': reference.trim(), 'p_target_tier': targetTier,
     });
@@ -99,9 +101,14 @@ class WalletService {
     await _client.rpc('admin_update_airtime_cash_request', params: {'p_request_id': id, 'p_status': status});
   }
 
+  static Future<void> reviewKyc({required String userId, required String status, required int tier}) async {
+    if (!await isAdmin()) throw Exception('Admin access required.');
+    await _client.rpc('admin_review_kyc', params: {'p_user_id': userId, 'p_status': status, 'p_tier': tier});
+  }
+
   static Future<List<Map<String, dynamic>>> getAdminStats() async {
     if (!await isAdmin()) throw Exception('Admin access required.');
-    final profiles = await _client.from('profiles').select('id,role');
+    final profiles = await _client.from('profiles').select('id,full_name,email,phone,role,kyc_tier,kyc_status,kyc_method,kyc_reference');
     final transactions = await _client.from('transactions').select('id,status,amount,service,created_at').order('created_at', ascending: false).limit(100);
     final dataOrders = await _client.from('data_orders').select('id,status,amount,network,phone,plan,created_at').order('created_at', ascending: false).limit(100);
     final airtimeOrders = await _client.from('airtime_orders').select('id,status,amount,network,phone,created_at').order('created_at', ascending: false).limit(100);
