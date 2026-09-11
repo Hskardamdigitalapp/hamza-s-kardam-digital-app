@@ -40,7 +40,8 @@ jobs:
 
       - name: Fix Android NDK
         run: |
-          sed -i '/android {/a\    ndkVersion = "27.0.12077973"' android/app/build.gradle.kts
+          sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
+          grep -n 'ndkVersion' android/app/build.gradle.kts
 
       - name: Check Android project
         run: |
