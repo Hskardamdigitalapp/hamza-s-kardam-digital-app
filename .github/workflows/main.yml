@@ -69,3 +69,5 @@ jobs:
         with:
           name: hamza-digital-app-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+
+# Triggered rebuild for the latest backend-integrated app state.
