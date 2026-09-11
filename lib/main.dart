@@ -7,6 +7,8 @@ import 'screens/wallet_screen.dart';
 import 'screens/transactions_screen.dart';
 import 'screens/data_screen.dart';
 import 'screens/airtime_screen.dart';
+import 'screens/orders_screen.dart';
+import 'screens/profile_screen.dart';
 
 const supabaseUrl = 'https://txuiicqlkyndwtizlouz.supabase.co';
 const supabasePublishableKey = 'sb_publishable_5FJheQ0P-c-iddbxIPe7Zg_TWnhdBs-';
@@ -37,6 +39,8 @@ class KardamDigitalApp extends StatelessWidget {
         '/home': (_) => const HomeScreen(),
         '/wallet': (_) => const WalletScreen(),
         '/transactions': (_) => const TransactionsScreen(),
+        '/orders': (_) => const OrdersScreen(),
+        '/profile': (_) => const ProfileScreen(),
         '/data': (_) => const DataScreen(),
         '/airtime': (_) => const AirtimeScreen(),
       },
