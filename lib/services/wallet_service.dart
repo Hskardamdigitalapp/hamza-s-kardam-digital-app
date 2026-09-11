@@ -44,31 +44,27 @@ class WalletService {
   }
 
   static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
-    final user = currentUser;
-    if (user == null) throw Exception('Please sign in again.');
+    if (currentUser == null) throw Exception('Please sign in again.');
     if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
-    await _client.from('airtime_orders').insert({
-      'user_id': user.id,
-      'network': network,
-      'phone': phone,
-      'amount': amount,
-      'status': 'pending',
-      'reference': 'AIR-${DateTime.now().microsecondsSinceEpoch}',
+    final reference = 'AIR-${DateTime.now().microsecondsSinceEpoch}';
+    await _client.rpc('create_airtime_order', params: {
+      'p_network': network,
+      'p_phone': phone,
+      'p_amount': amount,
+      'p_reference': reference,
     });
   }
 
   static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
-    final user = currentUser;
-    if (user == null) throw Exception('Please sign in again.');
+    if (currentUser == null) throw Exception('Please sign in again.');
     if (amount <= 0) throw Exception('Enter a valid amount.');
-    await _client.from('data_orders').insert({
-      'user_id': user.id,
-      'network': network,
-      'phone': phone,
-      'plan': plan,
-      'amount': amount,
-      'status': 'pending',
-      'reference': 'DATA-${DateTime.now().microsecondsSinceEpoch}',
+    final reference = 'DATA-${DateTime.now().microsecondsSinceEpoch}';
+    await _client.rpc('create_data_order', params: {
+      'p_network': network,
+      'p_phone': phone,
+      'p_plan': plan,
+      'p_amount': amount,
+      'p_reference': reference,
     });
   }
 }
