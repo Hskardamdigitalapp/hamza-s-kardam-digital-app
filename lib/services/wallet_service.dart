@@ -3,34 +3,25 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WalletService {
   static final _client = Supabase.instance.client;
-
   static User? get currentUser => _client.auth.currentUser;
-
   static Future<void> logout() => _client.auth.signOut();
 
   static Future<bool> isAdmin() async {
     if (currentUser == null) return false;
-    try {
-      final result = await _client.rpc('is_admin');
-      return result == true;
-    } catch (_) {
-      return false;
-    }
+    try { return await _client.rpc('is_admin') == true; } catch (_) { return false; }
   }
 
   static Future<double> getBalance() async {
     final user = currentUser;
     if (user == null) return 0;
     final row = await _client.from('wallets').select('balance').eq('user_id', user.id).maybeSingle();
-    if (row == null) return 0;
-    return double.tryParse(row['balance'].toString()) ?? 0;
+    return row == null ? 0 : (double.tryParse(row['balance'].toString()) ?? 0);
   }
 
   static Future<Map<String, dynamic>?> getProfile() async {
     final user = currentUser;
     if (user == null) return null;
-    final row = await _client.from('profiles').select().eq('id', user.id).maybeSingle();
-    return row;
+    return await _client.from('profiles').select().eq('id', user.id).maybeSingle();
   }
 
   static String? get avatarUrl => currentUser?.userMetadata?['avatar_url']?.toString();
@@ -39,11 +30,7 @@ class WalletService {
     final user = currentUser;
     if (user == null) throw Exception('Please sign in again.');
     final path = '${user.id}/avatar.jpg';
-    await _client.storage.from('avatars').uploadBinary(
-      path,
-      bytes,
-      fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true),
-    );
+    await _client.storage.from('avatars').uploadBinary(path, bytes, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true));
     final url = _client.storage.from('avatars').getPublicUrl(path);
     await _client.auth.updateUser(UserAttributes(data: {'avatar_url': url}));
     return url;
@@ -77,26 +64,24 @@ class WalletService {
     final dataOrders = await _client.from('data_orders').select('id,status,amount,network,phone,plan,created_at').order('created_at', ascending: false).limit(100);
     final airtimeOrders = await _client.from('airtime_orders').select('id,status,amount,network,phone,created_at').order('created_at', ascending: false).limit(100);
     final wallets = await _client.from('wallets').select('id,balance');
-    return [
-      {'profiles': List<Map<String, dynamic>>.from(profiles)},
-      {'transactions': List<Map<String, dynamic>>.from(transactions)},
-      {'data_orders': List<Map<String, dynamic>>.from(dataOrders)},
-      {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)},
-      {'wallets': List<Map<String, dynamic>>.from(wallets)},
-    ];
+    return [{'profiles': List<Map<String, dynamic>>.from(profiles)}, {'transactions': List<Map<String, dynamic>>.from(transactions)}, {'data_orders': List<Map<String, dynamic>>.from(dataOrders)}, {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)}, {'wallets': List<Map<String, dynamic>>.from(wallets)}];
   }
 
   static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
     if (currentUser == null) throw Exception('Please sign in again.');
     if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
-    final reference = 'AIR-${DateTime.now().microsecondsSinceEpoch}';
-    await _client.rpc('create_airtime_order', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_reference': reference});
+    await _client.rpc('create_airtime_order', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_reference': 'AIR-${DateTime.now().microsecondsSinceEpoch}'});
   }
 
   static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
     if (currentUser == null) throw Exception('Please sign in again.');
     if (amount <= 0) throw Exception('Enter a valid amount.');
-    final reference = 'DATA-${DateTime.now().microsecondsSinceEpoch}';
-    await _client.rpc('create_data_order', params: {'p_network': network, 'p_phone': phone, 'p_plan': plan, 'p_amount': amount, 'p_reference': reference});
+    await _client.rpc('create_data_order', params: {'p_network': network, 'p_phone': phone, 'p_plan': plan, 'p_amount': amount, 'p_reference': 'DATA-${DateTime.now().microsecondsSinceEpoch}'});
+  }
+
+  static Future<void> createAirtimeCashRequest({required String network, required String phone, required double amount, required String payoutBank, required String accountNumber, required String accountName}) async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    if (amount < 100) throw Exception('Minimum airtime to cash amount is ₦100.');
+    await _client.rpc('create_airtime_cash_request', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_payout_bank': payoutBank, 'p_account_number': accountNumber, 'p_account_name': accountName, 'p_reference': 'ATC-${DateTime.now().microsecondsSinceEpoch}'});
   }
 }
