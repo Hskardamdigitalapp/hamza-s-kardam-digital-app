@@ -121,14 +121,39 @@ class WalletService {
     ];
   }
 
+  static Future<Map<String, dynamic>> buyAirtime({required String network, required String phone, required double amount}) async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
+    final response = await _client.functions.invoke('vtpass-purchase', body: {'type': 'airtime', 'network': network, 'phone': phone, 'amount': amount});
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    return data is Map ? Map<String, dynamic>.from(data) : {};
+  }
+
+  static Future<List<Map<String, dynamic>>> getDataPlans(String network) async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    final response = await _client.functions.invoke('vtpass-catalog', body: {'network': network});
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    final plans = data is Map && data['plans'] is List ? data['plans'] as List : const [];
+    return plans.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  static Future<Map<String, dynamic>> buyData({required String network, required String phone, required String plan, required String variationCode, required double amount}) async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    if (amount <= 0) throw Exception('Enter a valid amount.');
+    final response = await _client.functions.invoke('vtpass-purchase', body: {'type': 'data', 'network': network, 'phone': phone, 'plan': plan, 'variation_code': variationCode, 'amount': amount});
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    return data is Map ? Map<String, dynamic>.from(data) : {};
+  }
+
   static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
-    if (currentUser == null) throw Exception('Please sign in again.'); if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
-    await _client.rpc('create_airtime_order', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_reference': 'AIR-${DateTime.now().microsecondsSinceEpoch}'});
+    await buyAirtime(network: network, phone: phone, amount: amount);
   }
 
   static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
-    if (currentUser == null) throw Exception('Please sign in again.'); if (amount <= 0) throw Exception('Enter a valid amount.');
-    await _client.rpc('create_data_order', params: {'p_network': network, 'p_phone': phone, 'p_plan': plan, 'p_amount': amount, 'p_reference': 'DATA-${DateTime.now().microsecondsSinceEpoch}'});
+    throw Exception('Please choose a data plan from the live provider catalogue.');
   }
 
   static Future<void> createAirtimeCashRequest({required String network, required String phone, required double amount, required String payoutBank, required String accountNumber, required String accountName}) async {
