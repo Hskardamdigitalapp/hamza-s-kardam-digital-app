@@ -40,11 +40,22 @@ class WalletService {
     if (currentUser == null) return [];
     final rows = await _client
         .from('wallet_funding_accounts')
-        .select('id,label,provider,bank_name,account_number,account_name,charges,currency,is_active,metadata')
+        .select('id,label,provider,bank_name,account_number,account_name,charges,currency,is_active,metadata,provider_reference,expires_at')
         .eq('is_active', true)
         .or('user_id.is.null,user_id.eq.${currentUser!.id}')
         .order('created_at');
     return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<Map<String, dynamic>> createDynamicFunding(double amount) async {
+    final user = currentUser;
+    if (user == null) throw Exception('Please sign in again.');
+    if (amount < 100) throw Exception('Minimum funding amount is ₦100.');
+    final response = await _client.functions.invoke('create-dynamic-funding', body: {'amount': amount});
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    if (data is! Map || data['account'] is! Map) throw Exception('Unable to generate a funding account.');
+    return Map<String, dynamic>.from(data['account'] as Map);
   }
 
   static Future<List<Map<String, dynamic>>> getDeposits({int limit = 50}) async {
