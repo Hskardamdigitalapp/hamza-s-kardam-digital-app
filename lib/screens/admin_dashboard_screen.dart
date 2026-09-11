@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/wallet_service.dart';
 
 const _navy = Color(0xFF061B49);
-const _navy2 = Color(0xFF0A2C68);
 const _gold = Color(0xFFC89B3C);
 const _goldLight = Color(0xFFE7C66A);
 
@@ -47,7 +46,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   const Icon(Icons.lock_outline, size: 48, color: _navy),
                   const SizedBox(height: 12),
-                  const Text('Admin access required.'),
+                  Text(snapshot.error.toString().replaceFirst('Exception: ', '')),
                   const SizedBox(height: 12),
                   ElevatedButton(onPressed: _refresh, child: const Text('Retry')),
                 ],
@@ -61,7 +60,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           final dataOrders = _find(data, 'data_orders');
           final airtimeOrders = _find(data, 'airtime_orders');
           final wallets = _find(data, 'wallets');
-          final pending = [...transactions, ...dataOrders, ...airtimeOrders]
+          final cashRequests = _find(data, 'airtime_cash_requests');
+          final pending = [...transactions, ...dataOrders, ...airtimeOrders, ...cashRequests]
               .where((r) => r['status']?.toString().toLowerCase() == 'pending')
               .length;
 
@@ -88,6 +88,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
+                const Text('Airtime to Cash Queue', style: TextStyle(color: _navy, fontSize: 20, fontWeight: FontWeight.w900)),
+                const SizedBox(height: 8),
+                if (cashRequests.isEmpty)
+                  const Card(child: Padding(padding: EdgeInsets.all(18), child: Text('No airtime-to-cash requests yet.')))
+                else
+                  ...cashRequests.map(_cashRequestCard),
+                const SizedBox(height: 24),
                 const Text('Recent Activity', style: TextStyle(color: _navy, fontSize: 20, fontWeight: FontWeight.w900)),
                 const SizedBox(height: 8),
                 if (transactions.isEmpty)
@@ -109,6 +116,72 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         },
       ),
     );
+  }
+
+  Widget _cashRequestCard(Map<String, dynamic> row) {
+    final status = row['status']?.toString() ?? 'pending';
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text('${row['network'] ?? ''} • ₦${row['amount'] ?? 0}', style: const TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 16))),
+                _statusChip(status),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('Phone: ${row['phone'] ?? ''}'),
+            Text('Bank: ${row['payout_bank'] ?? ''}'),
+            Text('Account: ${row['account_number'] ?? ''} • ${row['account_name'] ?? ''}'),
+            Text('Ref: ${row['reference'] ?? ''}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _statusButton(row, 'processing', Icons.play_arrow, 'Process'),
+                _statusButton(row, 'completed', Icons.check, 'Complete'),
+                _statusButton(row, 'rejected', Icons.close, 'Reject'),
+                if (status != 'pending') _statusButton(row, 'pending', Icons.undo, 'Pending'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusButton(Map<String, dynamic> row, String status, IconData icon, String label) {
+    return OutlinedButton.icon(
+      onPressed: row['status']?.toString() == status ? null : () => _changeStatus(row, status),
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+    );
+  }
+
+  Widget _statusChip(String status) {
+    final text = status.toUpperCase();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(color: _goldLight.withOpacity(.55), borderRadius: BorderRadius.circular(12)),
+      child: Text(text, style: const TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 11)),
+    );
+  }
+
+  Future<void> _changeStatus(Map<String, dynamic> row, String status) async {
+    try {
+      await WalletService.updateAirtimeCashRequestStatus(id: row['id'].toString(), status: status);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Request moved to $status.')));
+      await _refresh();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))));
+    }
   }
 
   List<Map<String, dynamic>> _find(List<Map<String, dynamic>> data, String key) {
