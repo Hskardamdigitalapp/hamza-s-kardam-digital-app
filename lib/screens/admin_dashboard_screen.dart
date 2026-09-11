@@ -65,7 +65,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Card(margin: const EdgeInsets.only(bottom: 10), child: Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [Expanded(child: Text('${row['network'] ?? ''} • ₦${row['amount'] ?? 0}', style: const TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 16))), _statusChip(status)]), const SizedBox(height: 8),
       Text('Phone: ${row['phone'] ?? ''}'), Text('Bank: ${row['payout_bank'] ?? ''}'), Text('Account: ${row['account_number'] ?? ''} • ${row['account_name'] ?? ''}'), Text('Ref: ${row['reference'] ?? ''}', style: const TextStyle(fontSize: 12, color: Colors.black54)), const SizedBox(height: 10),
-      Wrap(spacing: 8, runSpacing: 8, children: [_statusButton(row, 'processing', Icons.play_arrow, 'Process'), _statusButton(row, 'completed', Icons.check, 'Complete'), _statusButton(row, 'rejected', Icons.close, 'Reject'), if (status != 'pending') _statusButton(row, 'pending', Icons.undo, 'Pending')]),
+      Wrap(spacing: 8, runSpacing: 8, children: [_statusButton(row, 'processing', Icons.play_arrow, 'Process'), _statusButton(row, 'paid', Icons.check, 'Complete'), _statusButton(row, 'rejected', Icons.close, 'Reject'), if (status != 'pending') _statusButton(row, 'pending', Icons.undo, 'Pending')]),
     ])));
   }
   Widget _statusButton(Map<String,dynamic> row,String status,IconData icon,String label) => OutlinedButton.icon(onPressed: row['status']?.toString()==status ? null : () => _changeStatus(row,status), icon: Icon(icon,size:16), label: Text(label));
