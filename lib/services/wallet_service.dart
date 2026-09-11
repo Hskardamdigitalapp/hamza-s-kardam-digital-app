@@ -86,6 +86,20 @@ class WalletService {
     return List<Map<String, dynamic>>.from(rows);
   }
 
+  static Future<List<Map<String, dynamic>>> getAirtimeCashRequests({int limit = 100}) async {
+    if (!await isAdmin()) throw Exception('Admin access required.');
+    final rows = await _client.from('airtime_cash_requests').select().order('created_at', ascending: false).limit(limit);
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<void> updateAirtimeCashRequestStatus({required String id, required String status}) async {
+    if (!await isAdmin()) throw Exception('Admin access required.');
+    await _client.rpc('admin_update_airtime_cash_request', params: {
+      'p_request_id': id,
+      'p_status': status,
+    });
+  }
+
   static Future<List<Map<String, dynamic>>> getAdminStats() async {
     if (!await isAdmin()) throw Exception('Admin access required.');
     final profiles = await _client.from('profiles').select('id,role');
@@ -93,7 +107,15 @@ class WalletService {
     final dataOrders = await _client.from('data_orders').select('id,status,amount,network,phone,plan,created_at').order('created_at', ascending: false).limit(100);
     final airtimeOrders = await _client.from('airtime_orders').select('id,status,amount,network,phone,created_at').order('created_at', ascending: false).limit(100);
     final wallets = await _client.from('wallets').select('id,balance');
-    return [{'profiles': List<Map<String, dynamic>>.from(profiles)}, {'transactions': List<Map<String, dynamic>>.from(transactions)}, {'data_orders': List<Map<String, dynamic>>.from(dataOrders)}, {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)}, {'wallets': List<Map<String, dynamic>>.from(wallets)}];
+    final cashRequests = await _client.from('airtime_cash_requests').select('id,status,amount,network,phone,payout_bank,account_number,account_name,reference,created_at').order('created_at', ascending: false).limit(100);
+    return [
+      {'profiles': List<Map<String, dynamic>>.from(profiles)},
+      {'transactions': List<Map<String, dynamic>>.from(transactions)},
+      {'data_orders': List<Map<String, dynamic>>.from(dataOrders)},
+      {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)},
+      {'wallets': List<Map<String, dynamic>>.from(wallets)},
+      {'airtime_cash_requests': List<Map<String, dynamic>>.from(cashRequests)},
+    ];
   }
 
   static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
