@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/wallet_service.dart';
 
+const _navy = Color(0xFF061B49);
+const _gold = Color(0xFFC89B3C);
+
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
   @override
@@ -19,7 +22,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Future<List<Map<String, dynamic>>> _load() async {
     final data = await WalletService.getDataOrders();
     final airtime = await WalletService.getAirtimeOrders();
-    final all = <Map<String, dynamic>>[...data.map((e) => {...e, '_service': 'Data'}), ...airtime.map((e) => {...e, '_service': 'Airtime'})];
+    final all = <Map<String, dynamic>>[
+      ...data.map((e) => {...e, '_service': 'Data'}),
+      ...airtime.map((e) => {...e, '_service': 'Airtime'}),
+    ];
     all.sort((a, b) => (b['created_at']?.toString() ?? '').compareTo(a['created_at']?.toString() ?? ''));
     return all;
   }
@@ -32,16 +38,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Orders'), backgroundColor: Colors.green, foregroundColor: Colors.white),
+      appBar: AppBar(
+        title: const Text('My Orders'),
+        backgroundColor: _navy,
+        foregroundColor: Colors.white,
+      ),
       body: RefreshIndicator(
+        color: _gold,
         onRefresh: _refresh,
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _future,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-            if (snapshot.hasError) return ListView(children: [Padding(padding: const EdgeInsets.all(24), child: Text('Unable to load orders: ${snapshot.error}'))]);
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator(color: _gold));
+            }
+            if (snapshot.hasError) {
+              return ListView(children: [
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text('Unable to load orders: ${snapshot.error}'),
+                ),
+              ]);
+            }
             final orders = snapshot.data ?? [];
-            if (orders.isEmpty) return ListView(children: const [SizedBox(height: 120), Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey), SizedBox(height: 16), Center(child: Text('No orders yet'))]);
+            if (orders.isEmpty) {
+              return ListView(children: const [
+                SizedBox(height: 120),
+                Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Center(child: Text('No orders yet')),
+              ]);
+            }
             return ListView.separated(
               padding: const EdgeInsets.all(12),
               itemCount: orders.length,
@@ -54,13 +81,24 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 final network = o['network']?.toString() ?? '';
                 final phone = o['phone']?.toString() ?? '';
                 final plan = o['plan']?.toString();
-                return Card(child: ListTile(
-                  leading: CircleAvatar(child: Icon(service == 'Data' ? Icons.data_usage : Icons.phone_android)),
-                  title: Text('$service${plan != null && plan.isNotEmpty ? ' • $plan' : ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('$network • $phone\n$status'),
-                  isThreeLine: true,
-                  trailing: Text('₦${amount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                ));
+                return Card(
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: _navy.withOpacity(.08),
+                      child: Icon(service == 'Data' ? Icons.data_usage : Icons.phone_android, color: _navy),
+                    ),
+                    title: Text(
+                      '$service${plan != null && plan.isNotEmpty ? ' • $plan' : ''}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('$network • $phone\n$status'),
+                    isThreeLine: true,
+                    trailing: Text(
+                      '₦${amount.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
               },
             );
           },
