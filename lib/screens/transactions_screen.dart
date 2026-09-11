@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/wallet_service.dart';
 
+const _navy = Color(0xFF061B49);
+const _gold = Color(0xFFC89B3C);
+
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
 
@@ -27,16 +30,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
-        backgroundColor: Colors.green,
+        backgroundColor: _navy,
         foregroundColor: Colors.white,
       ),
       body: RefreshIndicator(
+        color: _gold,
         onRefresh: _refresh,
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator(color: _gold));
             }
             if (snapshot.hasError) {
               return ListView(children: [
@@ -71,10 +75,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 return Card(
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.green.withOpacity(.1),
+                      backgroundColor: _navy.withOpacity(.08),
                       child: Icon(
                         amount < 0 ? Icons.arrow_upward : Icons.arrow_downward,
-                        color: Colors.green,
+                        color: _navy,
                       ),
                     ),
                     title: Text(service, style: const TextStyle(fontWeight: FontWeight.bold)),
