@@ -35,11 +35,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _verify(int tier) async {
     String method = 'NIN';
     final ref = TextEditingController();
-    bool hidden = true;
     final result = await showDialog<bool>(context: context, builder: (ctx) => StatefulBuilder(builder: (ctx, setDialog) => AlertDialog(
       title: Text('Verify for Tier $tier'),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Enter your NIN or BVN securely. The number is hidden while typing and is never displayed back in full.'),
+        const Text('Enter your NIN or BVN. You can see the number while typing so you can check and correct any mistake before submitting.'),
         const SizedBox(height: 14),
         DropdownButtonFormField<String>(
           value: method,
@@ -54,8 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TextField(
           controller: ref,
           keyboardType: TextInputType.number,
-          obscureText: hidden,
-          obscuringCharacter: '•',
           maxLength: 11,
           autofocus: true,
           autocorrect: false,
@@ -64,12 +61,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             labelText: '$method number',
             prefixIcon: const Icon(Icons.verified_user_outlined),
             suffixIcon: IconButton(
-              tooltip: hidden ? 'Show number temporarily' : 'Hide number',
-              icon: Icon(hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-              onPressed: () => setDialog(() => hidden = !hidden),
+              tooltip: 'Clear number',
+              icon: const Icon(Icons.clear),
+              onPressed: () => setDialog(ref.clear),
             ),
             counterText: '',
-            helperText: '11 digits • Hidden by default',
+            helperText: '11 digits • Visible while entering',
           ),
         ),
       ]),
