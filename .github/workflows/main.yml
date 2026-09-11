@@ -32,6 +32,12 @@ jobs:
           flutter create /tmp/flutter_app --platforms=android --project-name hamza_s_kardam_digital_app
           cp -R /tmp/flutter_app/android ./android
 
+      - name: Apply app branding
+        run: |
+          mkdir -p android/app/src/main/res/drawable
+          cp branding/kardam_launcher.xml android/app/src/main/res/drawable/kardam_launcher.xml
+          sed -i 's#android:icon="@mipmap/ic_launcher"#android:icon="@drawable/kardam_launcher"#' android/app/src/main/AndroidManifest.xml
+
       - name: Check Android project
         run: |
           ls -la android
