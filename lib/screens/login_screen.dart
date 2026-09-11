@@ -1,215 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+const _navy = Color(0xFF061B49);
+const _navy2 = Color(0xFF0A2C68);
+const _gold = Color(0xFFC89B3C);
+const _goldLight = Color(0xFFE7C66A);
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  @override State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  bool loading = false;
-  bool obscurePassword = true;
+  bool loading = false, obscurePassword = true;
 
   Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
-
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email and password.'),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter your email and password.')));
       return;
     }
-
     setState(() => loading = true);
-
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-
+      await Supabase.instance.client.auth.signInWithPassword(email: email, password: password);
       if (!mounted) return;
-
       Navigator.pushReplacementNamed(context, '/home');
     } on AuthException catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => loading = false);
-      }
-    }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login failed: $e')));
+    } finally { if (mounted) setState(() => loading = false); }
   }
+
+  @override void dispose() { emailController.dispose(); passwordController.dispose(); super.dispose(); }
 
   @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: const Color(0xFFF5F7FB),
+    body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(children: [
+      const SizedBox(height: 42),
+      Container(width: 88, height: 88, decoration: BoxDecoration(gradient: const LinearGradient(colors: [_navy2, _navy]), borderRadius: BorderRadius.circular(24), border: Border.all(color: _gold, width: 1.5)), child: const Center(child: Text('HK', style: TextStyle(color: _goldLight, fontSize: 25, fontWeight: FontWeight.w900)))),
+      const SizedBox(height: 20),
+      const Text('HAMZA S. KARDAM', style: TextStyle(color: _navy, fontSize: 25, fontWeight: FontWeight.w900)),
+      const Text('DIGITAL APP', style: TextStyle(color: _gold, fontSize: 18, fontWeight: FontWeight.w900)),
+      const SizedBox(height: 7),
+      const Text('Data • Airtime • Payments • Digital Services', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+      const SizedBox(height: 36),
+      TextField(controller: emailController, keyboardType: TextInputType.emailAddress, decoration: _decoration('Email', Icons.email_outlined)),
+      const SizedBox(height: 16),
+      TextField(controller: passwordController, obscureText: obscurePassword, decoration: _decoration('Password', Icons.lock_outline, suffix: IconButton(onPressed: () => setState(() => obscurePassword = !obscurePassword), icon: Icon(obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined)))),
+      const SizedBox(height: 24),
+      SizedBox(width: double.infinity, height: 54, child: ElevatedButton(onPressed: loading ? null : login, style: ElevatedButton.styleFrom(backgroundColor: _navy, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: loading ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: _goldLight)) : const Text('LOGIN', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)))),
+      const SizedBox(height: 12),
+      TextButton(onPressed: () => Navigator.pushNamed(context, '/register'), child: const Text('Create New Account', style: TextStyle(color: _gold, fontWeight: FontWeight.w900))),
+    ]))),
+  );
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const SizedBox(height: 45),
-
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: const Icon(
-                  Icons.account_balance_wallet,
-                  color: Colors.white,
-                  size: 50,
-                ),
-              ),
-
-              const SizedBox(height: 22),
-
-              const Text(
-                'HAMZA S. KARDAM',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const Text(
-                'DIGITAL APP',
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              const Text(
-                'Data • Airtime • Payments • Digital Services',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black54,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: passwordController,
-                obscureText: obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: loading ? null : login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: loading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/register');
-                },
-                child: const Text(
-                  'Create New Account',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  InputDecoration _decoration(String label, IconData icon, {Widget? suffix}) => InputDecoration(labelText: label, prefixIcon: Icon(icon, color: _navy), suffixIcon: suffix, filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _gold, width: 1.5)));
 }
