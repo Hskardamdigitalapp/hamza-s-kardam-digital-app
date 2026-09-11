@@ -9,11 +9,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late Future<Map<String, dynamic>?> _profileFuture;
+  late Future<bool> _adminFuture;
 
   @override
   void initState() {
     super.initState();
     _profileFuture = WalletService.getProfile();
+    _adminFuture = WalletService.isAdmin();
   }
 
   Future<void> _logout() async {
@@ -51,6 +53,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ListTile(leading: const Icon(Icons.account_balance_wallet_outlined), title: const Text('Wallet'), trailing: const Icon(Icons.chevron_right), onTap: () => Navigator.pushNamed(context, '/wallet')),
                 ListTile(leading: const Icon(Icons.receipt_long_outlined), title: const Text('Transactions'), trailing: const Icon(Icons.chevron_right), onTap: () => Navigator.pushNamed(context, '/transactions')),
               ])),
+              FutureBuilder<bool>(
+                future: _adminFuture,
+                builder: (context, adminSnapshot) {
+                  if (adminSnapshot.data != true) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.admin_panel_settings_outlined, color: Colors.green),
+                        title: const Text('Admin Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: const Text('Manage users, wallets and service activity'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.pushNamed(context, '/admin'),
+                      ),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 20),
               OutlinedButton.icon(onPressed: _logout, icon: const Icon(Icons.logout), label: const Text('Logout')),
             ],
