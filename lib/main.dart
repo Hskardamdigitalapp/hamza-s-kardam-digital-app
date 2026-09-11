@@ -5,18 +5,15 @@ import 'screens/register_screen.dart';
 import 'home_screen.dart';
 import 'screens/wallet_screen.dart';
 import 'screens/transactions_screen.dart';
+import 'screens/data_screen.dart';
+import 'screens/airtime_screen.dart';
 
 const supabaseUrl = 'https://txuiicqlkyndwtizlouz.supabase.co';
 const supabasePublishableKey = 'sb_publishable_5FJheQ0P-c-iddbxIPe7Zg_TWnhdBs-';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Supabase.initialize(
-    url: supabaseUrl,
-    anonKey: supabasePublishableKey,
-  );
-
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);
   runApp(const KardamDigitalApp());
 }
 
@@ -40,6 +37,8 @@ class KardamDigitalApp extends StatelessWidget {
         '/home': (_) => const HomeScreen(),
         '/wallet': (_) => const WalletScreen(),
         '/transactions': (_) => const TransactionsScreen(),
+        '/data': (_) => const DataScreen(),
+        '/airtime': (_) => const AirtimeScreen(),
       },
       home: const AuthGate(),
     );
