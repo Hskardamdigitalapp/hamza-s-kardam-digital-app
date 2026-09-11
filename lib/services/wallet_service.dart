@@ -10,28 +10,65 @@ class WalletService {
   static Future<double> getBalance() async {
     final user = currentUser;
     if (user == null) return 0;
-
-    final row = await _client
-        .from('wallets')
-        .select('balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
+    final row = await _client.from('wallets').select('balance').eq('user_id', user.id).maybeSingle();
     if (row == null) return 0;
     return double.tryParse(row['balance'].toString()) ?? 0;
+  }
+
+  static Future<Map<String, dynamic>?> getProfile() async {
+    final user = currentUser;
+    if (user == null) return null;
+    final row = await _client.from('profiles').select().eq('id', user.id).maybeSingle();
+    return row;
   }
 
   static Future<List<Map<String, dynamic>>> getTransactions({int limit = 50}) async {
     final user = currentUser;
     if (user == null) return [];
-
-    final rows = await _client
-        .from('transactions')
-        .select()
-        .eq('user_id', user.id)
-        .order('created_at', ascending: false)
-        .limit(limit);
-
+    final rows = await _client.from('transactions').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
     return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<List<Map<String, dynamic>>> getDataOrders({int limit = 50}) async {
+    final user = currentUser;
+    if (user == null) return [];
+    final rows = await _client.from('data_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<List<Map<String, dynamic>>> getAirtimeOrders({int limit = 50}) async {
+    final user = currentUser;
+    if (user == null) return [];
+    final rows = await _client.from('airtime_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
+    final user = currentUser;
+    if (user == null) throw Exception('Please sign in again.');
+    if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
+    await _client.from('airtime_orders').insert({
+      'user_id': user.id,
+      'network': network,
+      'phone': phone,
+      'amount': amount,
+      'status': 'pending',
+      'reference': 'AIR-${DateTime.now().microsecondsSinceEpoch}',
+    });
+  }
+
+  static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
+    final user = currentUser;
+    if (user == null) throw Exception('Please sign in again.');
+    if (amount <= 0) throw Exception('Enter a valid amount.');
+    await _client.from('data_orders').insert({
+      'user_id': user.id,
+      'network': network,
+      'phone': phone,
+      'plan': plan,
+      'amount': amount,
+      'status': 'pending',
+      'reference': 'DATA-${DateTime.now().microsecondsSinceEpoch}',
+    });
   }
 }
