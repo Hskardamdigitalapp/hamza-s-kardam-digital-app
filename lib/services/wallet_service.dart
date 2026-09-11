@@ -3,8 +3,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class WalletService {
   static final _client = Supabase.instance.client;
 
+  static User? get currentUser => _client.auth.currentUser;
+
+  static Future<void> logout() => _client.auth.signOut();
+
   static Future<double> getBalance() async {
-    final user = _client.auth.currentUser;
+    final user = currentUser;
     if (user == null) return 0;
 
     final row = await _client
@@ -17,10 +21,8 @@ class WalletService {
     return double.tryParse(row['balance'].toString()) ?? 0;
   }
 
-  static Future<List<Map<String, dynamic>>> getTransactions({
-    int limit = 50,
-  }) async {
-    final user = _client.auth.currentUser;
+  static Future<List<Map<String, dynamic>>> getTransactions({int limit = 50}) async {
+    final user = currentUser;
     if (user == null) return [];
 
     final rows = await _client
