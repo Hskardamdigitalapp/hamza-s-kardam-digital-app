@@ -11,6 +11,7 @@ import 'screens/airtime_to_cash_screen.dart';
 import 'screens/orders_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
+import 'screens/fund_crypto_screen.dart';
 
 const supabaseUrl = 'https://txuiicqlkyndwtizlouz.supabase.co';
 const supabasePublishableKey = 'sb_publishable_5FJheQ0P-c-iddbxIPe7Zg_TWnhdBs-';
@@ -50,6 +51,7 @@ class KardamDigitalApp extends StatelessWidget {
         '/data': (_) => const DataScreen(),
         '/airtime': (_) => const AirtimeScreen(),
         '/airtime-to-cash': (_) => const AirtimeToCashScreen(),
+        '/fund-crypto': (_) => const FundCryptoScreen(),
         '/admin': (_) => const AdminDashboardScreen(),
       },
       home: const AuthGate(),
