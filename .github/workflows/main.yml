@@ -32,9 +32,20 @@ jobs:
           flutter create /tmp/flutter_app --platforms=android --project-name hamza_s_kardam_digital_app
           cp -R /tmp/flutter_app/android ./android
 
-      - name: Update Kotlin version
+      - name: Check Android project
         run: |
-          sed -i 's/id("org.jetbrains.kotlin.android") version "[^"]*"/id("org.jetbrains.kotlin.android") version "2.0.21"/' android/settings.gradle
+          ls -la android
+          echo "Checking Kotlin configuration..."
+          if [ -f android/settings.gradle.kts ]; then
+            echo "Found settings.gradle.kts"
+            cat android/settings.gradle.kts
+          elif [ -f android/settings.gradle ]; then
+            echo "Found settings.gradle"
+            cat android/settings.gradle
+          else
+            echo "ERROR: No Android settings.gradle or settings.gradle.kts found"
+            exit 1
+          fi
 
       - name: Get Dependencies
         run: flutter pub get
