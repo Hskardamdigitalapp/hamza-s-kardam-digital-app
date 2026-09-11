@@ -35,20 +35,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _verify(int tier) async {
     String method = 'NIN';
     final ref = TextEditingController();
+    bool hidden = true;
     final result = await showDialog<bool>(context: context, builder: (ctx) => StatefulBuilder(builder: (ctx, setDialog) => AlertDialog(
       title: Text('Verify for Tier $tier'),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Choose NIN or BVN. Your details are submitted for secure review and are not automatically approved.'),
+        const Text('Enter your NIN or BVN securely. The number is hidden while typing and is never displayed back in full.'),
         const SizedBox(height: 14),
-        DropdownButtonFormField<String>(value: method, decoration: const InputDecoration(labelText: 'Verification method'), items: const [DropdownMenuItem(value: 'NIN', child: Text('NIN')), DropdownMenuItem(value: 'BVN', child: Text('BVN'))], onChanged: (v) => setDialog(() => method = v!)),
+        DropdownButtonFormField<String>(
+          value: method,
+          decoration: const InputDecoration(labelText: 'Verification method'),
+          items: const [
+            DropdownMenuItem(value: 'NIN', child: Text('NIN')),
+            DropdownMenuItem(value: 'BVN', child: Text('BVN')),
+          ],
+          onChanged: (v) => setDialog(() => method = v!),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: ref, keyboardType: TextInputType.number, obscureText: true, maxLength: 11, decoration: InputDecoration(labelText: '$method number', prefixIcon: const Icon(Icons.verified_user_outlined), counterText: '', helperText: '11 digits required. Never share it in chat.')),
+        TextField(
+          controller: ref,
+          keyboardType: TextInputType.number,
+          obscureText: hidden,
+          obscuringCharacter: '•',
+          maxLength: 11,
+          autofocus: true,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: InputDecoration(
+            labelText: '$method number',
+            prefixIcon: const Icon(Icons.verified_user_outlined),
+            suffixIcon: IconButton(
+              tooltip: hidden ? 'Show number temporarily' : 'Hide number',
+              icon: Icon(hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              onPressed: () => setDialog(() => hidden = !hidden),
+            ),
+            counterText: '',
+            helperText: '11 digits • Hidden by default',
+          ),
+        ),
       ]),
-      actions: [TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')), ElevatedButton(onPressed: () => Navigator.pop(ctx, RegExp(r'^\d{11}$').hasMatch(ref.text.trim())), child: const Text('Submit'))],
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(ctx, RegExp(r'^\d{11}$').hasMatch(ref.text.trim())),
+          child: const Text('Submit'),
+        ),
+      ],
     )));
-    if (result != true) { ref.dispose(); if (result == false && mounted) _snack('Enter a valid 11-digit $method number.'); return; }
-    try { await WalletService.requestKycUpgrade(method: method, reference: ref.text.trim(), targetTier: tier); if (mounted) { setState(_load); _snack('Verification submitted. Your status is pending review.'); } }
-    catch (e) { if (mounted) _snack(e.toString().replaceFirst('Exception: ', '')); }
+    if (result != true) {
+      ref.dispose();
+      if (result == false && mounted) _snack('Enter a valid 11-digit $method number.');
+      return;
+    }
+    try {
+      await WalletService.requestKycUpgrade(method: method, reference: ref.text.trim(), targetTier: tier);
+      if (mounted) { setState(_load); _snack('Identity verification submitted securely.'); }
+    } catch (e) {
+      if (mounted) _snack(e.toString().replaceFirst('Exception: ', ''));
+    }
     ref.dispose();
   }
 
