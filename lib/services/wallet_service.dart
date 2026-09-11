@@ -7,6 +7,12 @@ class WalletService {
 
   static Future<void> logout() => _client.auth.signOut();
 
+  static Future<bool> isAdmin() async {
+    if (currentUser == null) return false;
+    final result = await _client.rpc('is_admin');
+    return result == true;
+  }
+
   static Future<double> getBalance() async {
     final user = currentUser;
     if (user == null) return 0;
@@ -41,6 +47,22 @@ class WalletService {
     if (user == null) return [];
     final rows = await _client.from('airtime_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
     return List<Map<String, dynamic>>.from(rows);
+  }
+
+  static Future<List<Map<String, dynamic>>> getAdminStats() async {
+    if (!await isAdmin()) throw Exception('Admin access required.');
+    final profiles = await _client.from('profiles').select('id,role');
+    final transactions = await _client.from('transactions').select('id,status,amount,service,created_at').order('created_at', ascending: false).limit(100);
+    final dataOrders = await _client.from('data_orders').select('id,status,amount,network,phone,plan,created_at').order('created_at', ascending: false).limit(100);
+    final airtimeOrders = await _client.from('airtime_orders').select('id,status,amount,network,phone,created_at').order('created_at', ascending: false).limit(100);
+    final wallets = await _client.from('wallets').select('id,balance');
+    return [
+      {'profiles': List<Map<String, dynamic>>.from(profiles)},
+      {'transactions': List<Map<String, dynamic>>.from(transactions)},
+      {'data_orders': List<Map<String, dynamic>>.from(dataOrders)},
+      {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)},
+      {'wallets': List<Map<String, dynamic>>.from(wallets)},
+    ];
   }
 
   static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
