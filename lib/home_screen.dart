@@ -3,7 +3,6 @@ import 'services/wallet_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -32,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final user = WalletService.currentUser;
     final name = user?.userMetadata?['full_name']?.toString();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7F6),
       appBar: AppBar(
@@ -40,9 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('HAMZA S. KARDAM', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
-        ],
+        actions: [IconButton(onPressed: _logout, icon: const Icon(Icons.logout))],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
@@ -60,16 +56,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(20)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(children: [Icon(Icons.account_balance_wallet_outlined, color: Colors.white), SizedBox(width: 8), Text('Wallet Balance', style: TextStyle(color: Colors.white, fontSize: 16))]),
-                      const SizedBox(height: 12),
-                      Text('₦${balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 16),
-                      SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/wallet'), child: const Text('Manage Wallet'))),
-                    ],
-                  ),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Row(children: [Icon(Icons.account_balance_wallet_outlined, color: Colors.white), SizedBox(width: 8), Text('Wallet Balance', style: TextStyle(color: Colors.white, fontSize: 16))]),
+                    const SizedBox(height: 12),
+                    Text('₦${balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+                    SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/wallet'), child: const Text('Manage Wallet'))),
+                  ]),
                 );
               },
             ),
@@ -77,13 +70,13 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text('Quick Services', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: _serviceCard(Icons.wifi, 'Buy Data', () => _comingSoon('Data purchase'))),
+              Expanded(child: _serviceCard(Icons.wifi, 'Buy Data', () => Navigator.pushNamed(context, '/data'))),
               const SizedBox(width: 12),
-              Expanded(child: _serviceCard(Icons.phone_android, 'Airtime', () => _comingSoon('Airtime purchase'))),
+              Expanded(child: _serviceCard(Icons.phone_android, 'Airtime', () => Navigator.pushNamed(context, '/airtime'))),
             ]),
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: _serviceCard(Icons.receipt_long, 'My Orders', () => _comingSoon('Orders'))),
+              Expanded(child: _serviceCard(Icons.receipt_long, 'My Orders', () => Navigator.pushNamed(context, '/transactions'))),
               const SizedBox(width: 12),
               Expanded(child: _serviceCard(Icons.history, 'Transactions', () => Navigator.pushNamed(context, '/transactions'))),
             ]),
@@ -95,6 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _bundleCard('Airtel Data', '2GB', '₦700'),
             const SizedBox(height: 10),
             _bundleCard('Glo Data', '3GB', '₦800'),
+            const SizedBox(height: 18),
+            const Text('Live services will be enabled after VTU and payment provider credentials are configured.', style: TextStyle(color: Colors.black54)),
           ],
         ),
       ),
@@ -103,8 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.green,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
-          if (index == 2) Navigator.pushNamed(context, '/wallet');
           if (index == 1) Navigator.pushNamed(context, '/transactions');
+          if (index == 2) Navigator.pushNamed(context, '/wallet');
+          if (index == 3) _showMore();
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
@@ -116,20 +112,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _serviceCard(IconData icon, String title, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-        child: Column(children: [Icon(icon, color: Colors.green, size: 34), const SizedBox(height: 8), Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))]),
-      ),
-    );
-  }
+  Widget _serviceCard(IconData icon, String title, VoidCallback onTap) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(16),
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      child: Column(children: [Icon(icon, color: Colors.green, size: 34), const SizedBox(height: 8), Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))]),
+    ),
+  );
 
-  Widget _bundleCard(String title, String amount, String price) {
-    return Container(
+  Widget _bundleCard(String title, String amount, String price) => InkWell(
+    onTap: () => Navigator.pushNamed(context, '/data'),
+    borderRadius: BorderRadius.circular(16),
+    child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: Row(children: [
@@ -138,10 +134,15 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(height: 4), Text(amount)])),
         Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       ]),
-    );
-  }
+    ),
+  );
 
-  void _comingSoon(String service) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$service will be connected to the VTU/payment provider next.')));
+  void _showMore() {
+    showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      ListTile(leading: const Icon(Icons.account_balance_wallet), title: const Text('Wallet'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/wallet'); }),
+      ListTile(leading: const Icon(Icons.history), title: const Text('Transactions'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/transactions'); }),
+      ListTile(leading: const Icon(Icons.person_outline), title: const Text('Profile'), subtitle: Text(WalletService.currentUser?.email ?? ''), onTap: () => Navigator.pop(context)),
+      ListTile(leading: const Icon(Icons.logout), title: const Text('Logout'), onTap: () { Navigator.pop(context); _logout(); }),
+    ])));
   }
 }
