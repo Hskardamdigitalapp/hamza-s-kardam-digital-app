@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'home_screen.dart';
+import 'screens/wallet_screen.dart';
+import 'screens/transactions_screen.dart';
 
 const supabaseUrl = 'https://txuiicqlkyndwtizlouz.supabase.co';
 const supabasePublishableKey = 'sb_publishable_5FJheQ0P-c-iddbxIPe7Zg_TWnhdBs-';
@@ -36,6 +38,8 @@ class KardamDigitalApp extends StatelessWidget {
         '/login': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
         '/home': (_) => const HomeScreen(),
+        '/wallet': (_) => const WalletScreen(),
+        '/transactions': (_) => const TransactionsScreen(),
       },
       home: const AuthGate(),
     );
