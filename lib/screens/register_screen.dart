@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const _navy = Color(0xFF061B49);
 const _navy2 = Color(0xFF0A2C68);
@@ -9,6 +10,11 @@ class RegisterScreen extends StatefulWidget { const RegisterScreen({super.key});
 class _RegisterScreenState extends State<RegisterScreen> {
   final nameController=TextEditingController(), phoneController=TextEditingController(), emailController=TextEditingController(), passwordController=TextEditingController();
   bool loading=false, obscurePassword=true;
+
+  Future<void> _customerCare() async {
+    await launchUrl(Uri.parse('https://wa.me/2349044444921?text=Hello%20HAMZA%20S.%20KARDAM%20DIGITAL%20APP%2C%20I%20need%20customer%20care%20support.'), mode: LaunchMode.externalApplication);
+  }
+
   Future<void> register() async {
     final name=nameController.text.trim(), phone=phoneController.text.trim(), email=emailController.text.trim(), password=passwordController.text;
     if(name.isEmpty||phone.isEmpty||email.isEmpty||password.isEmpty){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Please fill all fields.')));return;}
@@ -29,7 +35,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     body:SafeArea(child:SingleChildScrollView(padding:const EdgeInsets.all(24),child:Column(children:[
       const SizedBox(height:18),
       Container(width:78,height:78,decoration:BoxDecoration(gradient:const LinearGradient(colors:[_navy2,_navy]),borderRadius:BorderRadius.circular(21),border:Border.all(color:_gold)),child:const Center(child:Text('HK',style:TextStyle(color:_gold,fontSize:22,fontWeight:FontWeight.w900)))),
-      const SizedBox(height:16),const Text('HAMZA S. KARDAM DIGITAL APP',textAlign:TextAlign.center,style:TextStyle(color:_navy,fontSize:21,fontWeight:FontWeight.w900)),const SizedBox(height:28),
+      const SizedBox(height:16),const Text('HAMZA S. KARDAM DIGITAL APP',textAlign:TextAlign.center,style:TextStyle(color:_navy,fontSize:21,fontWeight:FontWeight.w900)),
+      const SizedBox(height:8),
+      const Text('Create your account and start using our digital services.',textAlign:TextAlign.center,style:TextStyle(color:Colors.black54)),
+      const SizedBox(height:20),
+      SizedBox(width:double.infinity,height:48,child:OutlinedButton.icon(onPressed:_customerCare,icon:Image.network('https://img.icons8.com/color/48/whatsapp--v1.png',width:22,errorBuilder:(_,__,___)=>const Icon(Icons.chat)),label:const Text('Customer Care on WhatsApp'),style:OutlinedButton.styleFrom(foregroundColor:_navy,side:const BorderSide(color:_gold)))),
+      const SizedBox(height:20),
       _field(nameController,'Full Name',Icons.person_outline),const SizedBox(height:16),_field(phoneController,'Phone Number',Icons.phone_outlined,type:TextInputType.phone),const SizedBox(height:16),_field(emailController,'Email',Icons.email_outlined,type:TextInputType.emailAddress),const SizedBox(height:16),
       TextField(controller:passwordController,obscureText:obscurePassword,decoration:_dec('Password',Icons.lock_outline,suffix:IconButton(onPressed:()=>setState(()=>obscurePassword=!obscurePassword),icon:Icon(obscurePassword?Icons.visibility_outlined:Icons.visibility_off_outlined)))),
       const SizedBox(height:24),SizedBox(width:double.infinity,height:54,child:ElevatedButton(onPressed:loading?null:register,style:ElevatedButton.styleFrom(backgroundColor:_navy,foregroundColor:Colors.white,shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(14))),child:loading?const SizedBox(width:24,height:24,child:CircularProgressIndicator(strokeWidth:2,color:_gold)):const Text('CREATE ACCOUNT',style:TextStyle(fontWeight:FontWeight.w900)))),
