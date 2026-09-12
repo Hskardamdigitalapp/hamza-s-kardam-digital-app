@@ -20,7 +20,6 @@ import 'screens/profile_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/registration_screen.dart';
 import 'screens/transactions_screen.dart';
-import 'screens/transfer_to_bank_screen.dart';
 import 'screens/ussd_screen.dart';
 import 'screens/wallet_screen.dart';
 import 'theme_controller.dart';
@@ -68,7 +67,6 @@ class KardamDigitalApp extends StatelessWidget {
           '/education': (_) => const EducationScreen(),
           '/registration': (_) => const RegistrationScreen(),
           '/fund-crypto': (_) => const FundCryptoScreen(),
-          '/transfer-to-bank': (_) => const TransferToBankScreen(),
           '/ussd': (_) => const UssdScreen(),
           '/admin': (_) => const AdminDashboardScreen(),
           '/appearance': (_) => const AppearanceScreen(),
