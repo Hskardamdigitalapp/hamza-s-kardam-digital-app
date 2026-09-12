@@ -31,11 +31,11 @@ class RegistrationScreen extends StatelessWidget {
         const SizedBox(height: 25),
         const Text('CHOOSE A SERVICE', style: TextStyle(color: Colors.white60, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
         const SizedBox(height: 12),
-        _card(context, Icons.mosque, 'Hajj / Umrah', 'Packages, flights & visa', 'bilalsadastravels.com', () => _open('https://bilalsadastravels.com')),
+        _card(context, Icons.mosque, 'Hajj / Umrah', 'Pilgrimage registration', null, () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hajj / Umrah service is ready for provider connection.')))),
         const SizedBox(height: 14),
         _card(context, Icons.verified, 'CAC & Registrations', 'Register your business with CAC', 'Start application', () => _open('https://pre.cac.gov.ng/')),
         const SizedBox(height: 14),
-        _card(context, Icons.receipt_long, 'My CAC applications', 'View submitted applications', 'Open', () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CAC application history will be connected to the provider workflow.')))),
+        _card(context, Icons.receipt_long, 'My CAC applications', 'View submitted applications', 'Open', () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CAC application history is being connected to the provider workflow.')))),
       ]),
     );
   }
@@ -43,17 +43,18 @@ class RegistrationScreen extends StatelessWidget {
   Widget _hero() => Container(
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(gradient: const LinearGradient(colors: [_panel, _bg]), borderRadius: BorderRadius.circular(25), border: Border.all(color: _gold)),
-    child: Row(children: [
-      const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    child: const Row(children: [
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Get registered', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
         SizedBox(height: 7),
         Text('Plan your Hajj/Umrah or register your business — all in one place.', style: TextStyle(color: Colors.white70, fontSize: 16)),
       ])),
-      Container(width: 75, height: 75, decoration: const BoxDecoration(color: _gold, shape: BoxShape.circle), child: const Icon(Icons.assignment_turned_in, color: _bg, size: 40)),
+      SizedBox(width: 16),
+      CircleAvatar(radius: 37, backgroundColor: _gold, child: Icon(Icons.assignment_turned_in, color: _bg, size: 40)),
     ]),
   );
 
-  Widget _card(BuildContext context, IconData icon, String title, String desc, String action, VoidCallback onTap) => InkWell(
+  Widget _card(BuildContext context, IconData icon, String title, String desc, String? action, VoidCallback onTap) => InkWell(
     onTap: onTap,
     borderRadius: BorderRadius.circular(20),
     child: Container(
@@ -66,8 +67,7 @@ class RegistrationScreen extends StatelessWidget {
           Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
           const SizedBox(height: 5),
           Text(desc, style: const TextStyle(color: Colors.white60, height: 1.3)),
-          const SizedBox(height: 8),
-          Text(action, style: const TextStyle(color: _gold, fontWeight: FontWeight.w900)),
+          if (action != null) ...[const SizedBox(height: 8), Text(action, style: const TextStyle(color: _gold, fontWeight: FontWeight.w900))],
         ])),
       ]),
     ),
