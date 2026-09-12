@@ -23,6 +23,7 @@ import 'widgets/customer_care_button.dart';
 
 const supabaseUrl = 'https://txuiicqlkyndwtizlouz.supabase.co';
 const supabasePublishableKey = 'sb_publishable_5FJheQ0P-c-iddbxIPe7Zg_TWnhdBs-';
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,7 @@ class KardamDigitalApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HAMZA S. KARDAM DIGITAL APP',
+      navigatorKey: _navigatorKey,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: navy),
@@ -74,13 +76,15 @@ class KardamDigitalApp extends StatelessWidget {
         '/transfer-to-bank': (_) => const TransferToBankScreen(),
         '/admin': (_) => const AdminDashboardScreen(),
       },
-      home: const AppShell(),
+      home: const AuthGate(),
+      builder: (context, child) => AppShell(child: child ?? const SizedBox.shrink()),
     );
   }
 }
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  const AppShell({super.key, required this.child});
+  final Widget child;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -165,7 +169,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   Future<void> _switchAccount() async {
     await Supabase.instance.client.auth.signOut();
     if (!mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
+    _navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (_) => false);
   }
 
   Future<bool> _confirmExit() async {
@@ -220,8 +224,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   }
 
   Future<void> _handleBack() async {
-    final navigator = Navigator.of(context);
-    if (navigator.canPop()) {
+    final navigator = _navigatorKey.currentState;
+    if (navigator != null && navigator.canPop()) {
       navigator.pop();
       return;
     }
@@ -241,7 +245,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const AuthGate(),
+          widget.child,
           if (_locked && _userId != null)
             Positioned.fill(
               child: AppLockScreen(
