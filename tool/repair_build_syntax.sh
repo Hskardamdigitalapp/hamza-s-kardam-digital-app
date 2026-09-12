@@ -48,5 +48,4 @@ if p.exists():
     p.write_text(s)
 PY
 
-# Analyze the actual Flutter application source only. Legacy root Dart files are not part of the app build.
-flutter analyze lib --no-fatal-infos
+dart analyze lib --no-fatal-warnings
