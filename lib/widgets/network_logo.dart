@@ -9,13 +9,13 @@ class NetworkLogo extends StatelessWidget {
   String get _asset {
     switch (network.toLowerCase()) {
       case 'mtn':
-        return 'https://cdn.simpleicons.org/mtn';
+        return 'https://mtn.ng/favicon.ico';
       case 'airtel':
-        return 'https://cdn.simpleicons.org/airtel';
+        return 'https://www.airtel.com.ng/favicon.ico';
       case 'glo':
-        return 'https://cdn.simpleicons.org/globus';
+        return 'https://www.gloworld.com/favicon.ico';
       case '9mobile':
-        return 'https://cdn.simpleicons.org/9mobile';
+        return 'https://9mobile.com.ng/favicon.ico';
       default:
         return '';
     }
@@ -39,8 +39,8 @@ class NetworkLogo extends StatelessWidget {
               borderRadius: BorderRadius.circular(size * .2),
               child: Image.network(
                 _asset,
-                width: size * .72,
-                height: size * .72,
+                width: size * .74,
+                height: size * .74,
                 fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => Text(label, style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF061B49))),
               ),
