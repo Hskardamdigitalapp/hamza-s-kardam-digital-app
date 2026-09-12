@@ -44,7 +44,7 @@ class _AirtimeScreenState extends State<AirtimeScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
-      final result = await WalletService.buyAirtime(network: _network, phone: _phone.text.trim(), amount: double.parse(_amount.text.trim()));
+      final result = await WalletService.buyAirtime(network: _network == 'T2' ? '9mobile' : _network, phone: _phone.text.trim(), amount: double.parse(_amount.text.trim()));
       await _saveBeneficiaryNumber();
       if (!mounted) return;
       final status = result['status']?.toString() ?? 'processing';
@@ -95,7 +95,7 @@ class _AirtimeScreenState extends State<AirtimeScreen> {
 
   Widget _sectionLabel(String text) => Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black54, letterSpacing: .4));
 
-  Widget _networkSelector() => SizedBox(height: 88, child: ListView.separated(scrollDirection: Axis.horizontal, itemCount: 4, separatorBuilder: (_, __) => const SizedBox(width: 10), itemBuilder: (_, i) { final n = ['MTN', 'Glo', 'Airtel', '9mobile'][i]; final selected = n == _network; return InkWell(onTap: () => setState(() => _network = n), borderRadius: BorderRadius.circular(17), child: AnimatedContainer(duration: const Duration(milliseconds: 180), width: 78, padding: const EdgeInsets.all(7), decoration: BoxDecoration(color: selected ? const Color(0xFFFFF7D6) : Colors.white, borderRadius: BorderRadius.circular(17), border: Border.all(color: selected ? _gold : const Color(0xFFE5E5EA), width: selected ? 2 : 1)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [NetworkLogo(network: n, size: 40), const SizedBox(height: 4), Text(n, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800))]))); }));
+  Widget _networkSelector() => SizedBox(height: 88, child: ListView.separated(scrollDirection: Axis.horizontal, itemCount: 4, separatorBuilder: (_, __) => const SizedBox(width: 10), itemBuilder: (_, i) { final n = ['MTN', 'Glo', 'Airtel', 'T2'][i]; final selected = n == _network; return InkWell(onTap: () => setState(() => _network = n), borderRadius: BorderRadius.circular(17), child: AnimatedContainer(duration: const Duration(milliseconds: 180), width: 78, padding: const EdgeInsets.all(7), decoration: BoxDecoration(color: selected ? const Color(0xFFFFF7D6) : Colors.white, borderRadius: BorderRadius.circular(17), border: Border.all(color: selected ? _gold : const Color(0xFFE5E5EA), width: selected ? 2 : 1)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [NetworkLogo(network: n, size: 40), const SizedBox(height: 4), Text(n, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800))]))); }));
 
   Widget _ussdCard() => InkWell(onTap: () => Navigator.pushNamed(context, '/ussd'), borderRadius: BorderRadius.circular(18), child: Container(padding: const EdgeInsets.all(15), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: _gold.withOpacity(.35))), child: const Row(children: [Icon(Icons.dialpad_rounded, color: _gold, size: 30), SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('USSD Enquiry', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 16)), SizedBox(height: 3), Text('Check airtime balance and more', style: TextStyle(color: Colors.black54, fontSize: 12))])), Icon(Icons.chevron_right_rounded, color: _navy)]));
 
