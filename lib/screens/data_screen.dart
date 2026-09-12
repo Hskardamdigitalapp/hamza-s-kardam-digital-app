@@ -45,7 +45,7 @@ class _DataScreenState extends State<DataScreen> {
   Future<void> _loadPlans() async {
     setState(() => _loadingPlans = true);
     try {
-      final plans = await WalletService.getDataPlans(_network);
+      final plans = await WalletService.getDataPlans(_network == 'T2' ? '9mobile' : _network);
       if (!mounted) return;
       setState(() { _plans = plans; _selected = plans.isEmpty ? null : plans.first; });
     } catch (e) {
@@ -59,7 +59,7 @@ class _DataScreenState extends State<DataScreen> {
     if (!_formKey.currentState!.validate() || _selected == null) return;
     setState(() => _buying = true);
     try {
-      final result = await WalletService.buyData(network: _network, phone: _phone.text.trim(), plan: _selected!['name'].toString(), variationCode: _selected!['code'].toString(), amount: double.parse(_selected!['amount'].toString()));
+      final result = await WalletService.buyData(network: _network == 'T2' ? '9mobile' : _network, phone: _phone.text.trim(), plan: _selected!['name'].toString(), variationCode: _selected!['code'].toString(), amount: double.parse(_selected!['amount'].toString()));
       await _saveBeneficiaryNumber();
       if (!mounted) return;
       final status = result['status']?.toString() ?? 'processing';
@@ -108,8 +108,8 @@ class _DataScreenState extends State<DataScreen> {
   Widget _sectionLabel(String text) => Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black54, letterSpacing: .4));
 
   Widget _networkSelector() => SizedBox(height: 88, child: ListView.separated(scrollDirection: Axis.horizontal, itemCount: 4, separatorBuilder: (_, __) => const SizedBox(width: 10), itemBuilder: (_, i) {
-    final n = ['MTN', 'Glo', 'Airtel', '9mobile'][i]; final selected = n == _network;
-    return InkWell(onTap: () { if (_network == n) return; setState(() => _network = n); _loadPlans(); }, borderRadius: BorderRadius.circular(17), child: AnimatedContainer(duration: const Duration(milliseconds: 180), width: 78, padding: const EdgeInsets.all(7), decoration: BoxDecoration(color: selected ? const Color(0xFFFFF7D6) : Colors.white, borderRadius: BorderRadius.circular(17), border: Border.all(color: selected ? _gold : const Color(0xFFE5E5EA), width: selected ? 2 : 1)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [NetworkLogo(network: n, size: 40), const SizedBox(height: 4), Text(n == '9mobile' ? '9mobile' : n, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800))])));
+    final n = ['MTN', 'Glo', 'Airtel', 'T2'][i]; final selected = n == _network;
+    return InkWell(onTap: () { if (_network == n) return; setState(() => _network = n); _loadPlans(); }, borderRadius: BorderRadius.circular(17), child: AnimatedContainer(duration: const Duration(milliseconds: 180), width: 78, padding: const EdgeInsets.all(7), decoration: BoxDecoration(color: selected ? const Color(0xFFFFF7D6) : Colors.white, borderRadius: BorderRadius.circular(17), border: Border.all(color: selected ? _gold : const Color(0xFFE5E5EA), width: selected ? 2 : 1)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [NetworkLogo(network: n, size: 40), const SizedBox(height: 4), Text(n, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800))])));
   });
 
   Widget _planList() => Wrap(spacing: 9, runSpacing: 9, children: _plans.take(12).map((p) { final selected = identical(p, _selected); return InkWell(onTap: () => setState(() => _selected = p), borderRadius: BorderRadius.circular(15), child: Container(width: 104, padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 12), decoration: BoxDecoration(color: selected ? const Color(0xFFFFF7D6) : Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: selected ? _gold : const Color(0xFFE5E5EA), width: selected ? 2 : 1)), child: Column(children: [Text('₦${p['amount']}', style: const TextStyle(color: _navy, fontSize: 16, fontWeight: FontWeight.w900)), const SizedBox(height: 3), Text(p['name'].toString(), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700))]))); }).toList());
