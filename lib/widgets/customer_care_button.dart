@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../screens/customer_care_screen.dart';
 
-const _gold = Color(0xFFFFC83D);
+const _gold = Color(0xFFB8860B);
 const _navy = Color(0xFF061B49);
 
 class CustomerCareButton extends StatefulWidget {
