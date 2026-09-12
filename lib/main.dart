@@ -9,13 +9,16 @@ import 'screens/airtime_screen.dart';
 import 'screens/airtime_to_cash_screen.dart';
 import 'screens/app_lock_screen.dart';
 import 'screens/appearance_screen.dart';
+import 'screens/cable_tv_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/data_screen.dart';
+import 'screens/education_screen.dart';
 import 'screens/fund_crypto_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/orders_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/register_screen.dart';
+import 'screens/registration_screen.dart';
 import 'screens/transactions_screen.dart';
 import 'screens/transfer_to_bank_screen.dart';
 import 'screens/ussd_screen.dart';
@@ -61,6 +64,9 @@ class KardamDigitalApp extends StatelessWidget {
           '/data': (_) => const DataScreen(),
           '/airtime': (_) => const AirtimeScreen(),
           '/airtime-to-cash': (_) => const AirtimeToCashScreen(),
+          '/cable-tv': (_) => const CableTvScreen(),
+          '/education': (_) => const EducationScreen(),
+          '/registration': (_) => const RegistrationScreen(),
           '/fund-crypto': (_) => const FundCryptoScreen(),
           '/transfer-to-bank': (_) => const TransferToBankScreen(),
           '/ussd': (_) => const UssdScreen(),
