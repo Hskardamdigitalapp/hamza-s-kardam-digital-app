@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,11 +35,13 @@ jobs:
           flutter create /tmp/flutter_app --platforms=android --project-name hamza_s_kardam_digital_app
           cp -R /tmp/flutter_app/android ./android
 
-      - name: Apply app branding
+      - name: Apply app branding and internet permission
         run: |
           mkdir -p android/app/src/main/res/drawable
           cp branding/kardam_launcher.xml android/app/src/main/res/drawable/kardam_launcher.xml
           sed -i 's#android:icon="@mipmap/ic_launcher"#android:icon="@drawable/kardam_launcher"#' android/app/src/main/AndroidManifest.xml
+          grep -q 'android.permission.INTERNET' android/app/src/main/AndroidManifest.xml || sed -i '/<manifest /a\    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
+          grep -n 'android.permission.INTERNET' android/app/src/main/AndroidManifest.xml
 
       - name: Fix Android NDK
         run: |
@@ -66,6 +71,18 @@ jobs:
 
       - name: Build Play Store App Bundle
         run: flutter build appbundle --release --target=lib/main.dart --no-pub
+
+      - name: Create GitHub Release with APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.1-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" \
+            build/app/outputs/flutter-apk/app-release.apk \
+            build/app/outputs/bundle/release/app-release.aab \
+            --title "Hamza S. Kardam Digital App $TAG" \
+            --generate-notes \
+            --latest
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
