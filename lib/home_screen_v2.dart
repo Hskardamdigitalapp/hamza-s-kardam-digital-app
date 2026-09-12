@@ -138,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {'i': Icons.flight, 't': 'Flight', 'f': () => _soon('Flight')},
       {'i': Icons.card_giftcard, 't': 'Gift Card', 'f': () => _soon('Gift Card')},
     ];
-    final visible = _showAllServices ? services : services.take(8).toList();
+    final visible = _showAllServices ? services : services.take(4).toList();
     return Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [Text('Our Services', style: TextStyle(color: text, fontSize: 22, fontWeight: FontWeight.w900)), const Spacer(), TextButton(onPressed: () => setState(() => _showAllServices = !_showAllServices), child: Text(_showAllServices ? 'Show less' : 'View all', style: const TextStyle(color: _gold, fontWeight: FontWeight.w800)))]),
       const SizedBox(height: 8),
