@@ -33,6 +33,23 @@ class WalletService {
     return url;
   }
 
+  static Future<void> useDefaultAvatar() async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    await _client.auth.updateUser(UserAttributes(data: {'avatar_url': ''}));
+  }
+
+  static Future<void> deleteAccount() async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    final response = await _client.functions.invoke('delete-account');
+    final data = response.data;
+    if (data is Map && data['error'] != null) {
+      final balance = data['balance'];
+      if (balance != null) throw Exception('You still have ₦${balance} in your wallet. Please withdraw or spend the remaining balance before deleting your account.');
+      throw Exception(data['error'].toString());
+    }
+    if (data is! Map || data['success'] != true) throw Exception('Account deletion failed.');
+  }
+
   static Future<Map<String, dynamic>> getMyKycStatus() async {
     final user = currentUser; if (user == null) throw Exception('Please sign in again.');
     final result = await _client.rpc('get_my_kyc_status');
@@ -44,9 +61,7 @@ class WalletService {
     if (currentUser == null) throw Exception('Please sign in again.');
     if (method != 'NIN' && method != 'BVN') throw Exception('Choose NIN or BVN.');
     if (!RegExp(r'^\d{11}$').hasMatch(reference.trim())) throw Exception('$method must be 11 digits.');
-    final result = await _client.rpc('request_kyc_upgrade', params: {
-      'p_method': method.toLowerCase(), 'p_reference': reference.trim(), 'p_target_tier': targetTier,
-    });
+    final result = await _client.rpc('request_kyc_upgrade', params: {'p_method': method.toLowerCase(), 'p_reference': reference.trim(), 'p_target_tier': targetTier});
     return result is Map ? Map<String, dynamic>.from(result) : {};
   }
 
@@ -57,54 +72,20 @@ class WalletService {
   }
 
   static Future<Map<String, dynamic>> createDynamicFunding(double amount) async {
-    if (currentUser == null) throw Exception('Please sign in again.');
-    if (amount < 100) throw Exception('Minimum funding amount is ₦100.');
-    final response = await _client.functions.invoke('create-dynamic-funding', body: {'amount': amount});
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    if (data is! Map || data['account'] is! Map) throw Exception('Unable to generate a funding account.');
+    if (currentUser == null) throw Exception('Please sign in again.'); if (amount < 100) throw Exception('Minimum funding amount is ₦100.');
+    final response = await _client.functions.invoke('create-dynamic-funding', body: {'amount': amount}); final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); if (data is! Map || data['account'] is! Map) throw Exception('Unable to generate a funding account.');
     return Map<String, dynamic>.from(data['account'] as Map);
   }
 
-  static Future<List<Map<String, dynamic>>> getDeposits({int limit = 50}) async {
-    final user = currentUser; if (user == null) return [];
-    final rows = await _client.from('wallet_deposits').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
-    return List<Map<String, dynamic>>.from(rows);
-  }
+  static Future<List<Map<String, dynamic>>> getDeposits({int limit = 50}) async { final user = currentUser; if (user == null) return []; final rows = await _client.from('wallet_deposits').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit); return List<Map<String, dynamic>>.from(rows); }
+  static Future<List<Map<String, dynamic>>> getTransactions({int limit = 50}) async { final user = currentUser; if (user == null) return []; final rows = await _client.from('transactions').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit); return List<Map<String, dynamic>>.from(rows); }
+  static Future<List<Map<String, dynamic>>> getDataOrders({int limit = 50}) async { final user = currentUser; if (user == null) return []; final rows = await _client.from('data_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit); return List<Map<String, dynamic>>.from(rows); }
+  static Future<List<Map<String, dynamic>>> getAirtimeOrders({int limit = 50}) async { final user = currentUser; if (user == null) return []; final rows = await _client.from('airtime_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit); return List<Map<String, dynamic>>.from(rows); }
 
-  static Future<List<Map<String, dynamic>>> getTransactions({int limit = 50}) async {
-    final user = currentUser; if (user == null) return [];
-    final rows = await _client.from('transactions').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
-    return List<Map<String, dynamic>>.from(rows);
-  }
-
-  static Future<List<Map<String, dynamic>>> getDataOrders({int limit = 50}) async {
-    final user = currentUser; if (user == null) return [];
-    final rows = await _client.from('data_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
-    return List<Map<String, dynamic>>.from(rows);
-  }
-
-  static Future<List<Map<String, dynamic>>> getAirtimeOrders({int limit = 50}) async {
-    final user = currentUser; if (user == null) return [];
-    final rows = await _client.from('airtime_orders').select().eq('user_id', user.id).order('created_at', ascending: false).limit(limit);
-    return List<Map<String, dynamic>>.from(rows);
-  }
-
-  static Future<List<Map<String, dynamic>>> getAirtimeCashRequests({int limit = 100}) async {
-    if (!await isAdmin()) throw Exception('Admin access required.');
-    final rows = await _client.from('airtime_cash_requests').select().order('created_at', ascending: false).limit(limit);
-    return List<Map<String, dynamic>>.from(rows);
-  }
-
-  static Future<void> updateAirtimeCashRequestStatus({required String id, required String status}) async {
-    if (!await isAdmin()) throw Exception('Admin access required.');
-    await _client.rpc('admin_update_airtime_cash_request', params: {'p_request_id': id, 'p_status': status});
-  }
-
-  static Future<void> reviewKyc({required String userId, required String status, required int tier}) async {
-    if (!await isAdmin()) throw Exception('Admin access required.');
-    await _client.rpc('admin_review_kyc', params: {'p_user_id': userId, 'p_status': status, 'p_tier': tier});
-  }
+  static Future<List<Map<String, dynamic>>> getAirtimeCashRequests({int limit = 100}) async { if (!await isAdmin()) throw Exception('Admin access required.'); final rows = await _client.from('airtime_cash_requests').select().order('created_at', ascending: false).limit(limit); return List<Map<String, dynamic>>.from(rows); }
+  static Future<void> updateAirtimeCashRequestStatus({required String id, required String status}) async { if (!await isAdmin()) throw Exception('Admin access required.'); await _client.rpc('admin_update_airtime_cash_request', params: {'p_request_id': id, 'p_status': status}); }
+  static Future<void> reviewKyc({required String userId, required String status, required int tier}) async { if (!await isAdmin()) throw Exception('Admin access required.'); await _client.rpc('admin_review_kyc', params: {'p_user_id': userId, 'p_status': status, 'p_tier': tier}); }
 
   static Future<List<Map<String, dynamic>>> getAdminStats() async {
     if (!await isAdmin()) throw Exception('Admin access required.');
@@ -114,77 +95,16 @@ class WalletService {
     final airtimeOrders = await _client.from('airtime_orders').select('id,status,amount,network,phone,created_at').order('created_at', ascending: false).limit(100);
     final wallets = await _client.from('wallets').select('id,balance');
     final cashRequests = await _client.from('airtime_cash_requests').select('id,status,amount,network,phone,payout_bank,account_number,account_name,reference,created_at').order('created_at', ascending: false).limit(100);
-    return [
-      {'profiles': List<Map<String, dynamic>>.from(profiles)}, {'transactions': List<Map<String, dynamic>>.from(transactions)},
-      {'data_orders': List<Map<String, dynamic>>.from(dataOrders)}, {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)},
-      {'wallets': List<Map<String, dynamic>>.from(wallets)}, {'airtime_cash_requests': List<Map<String, dynamic>>.from(cashRequests)},
-    ];
+    return [{'profiles': List<Map<String, dynamic>>.from(profiles)}, {'transactions': List<Map<String, dynamic>>.from(transactions)}, {'data_orders': List<Map<String, dynamic>>.from(dataOrders)}, {'airtime_orders': List<Map<String, dynamic>>.from(airtimeOrders)}, {'wallets': List<Map<String, dynamic>>.from(wallets)}, {'airtime_cash_requests': List<Map<String, dynamic>>.from(cashRequests)}];
   }
 
-  static Future<List<Map<String, dynamic>>> getBanks() async {
-    final response = await _client.functions.invoke('bank-transfer', body: {'action': 'banks'});
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    final banks = data is Map && data['banks'] is List ? data['banks'] as List : const [];
-    return banks.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-  }
-
-  static Future<Map<String, dynamic>> resolveBankAccount({required String bankCode, required String accountNumber}) async {
-    final response = await _client.functions.invoke('bank-transfer', body: {'action': 'resolve', 'bank_code': bankCode, 'account_number': accountNumber});
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    if (data is! Map || data['verified'] != true) throw Exception('Unable to verify bank account.');
-    return Map<String, dynamic>.from(data);
-  }
-
-  static Future<Map<String, dynamic>> transferToBank({required String bankCode, required String bankName, required String accountNumber, required String accountName, required double amount}) async {
-    if (currentUser == null) throw Exception('Please sign in again.');
-    if (amount < 100) throw Exception('Minimum bank transfer is ₦100.');
-    final response = await _client.functions.invoke('bank-transfer', body: {
-      'action': 'transfer', 'bank_code': bankCode, 'bank_name': bankName, 'account_number': accountNumber, 'account_name': accountName, 'amount': amount,
-    });
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    return data is Map ? Map<String, dynamic>.from(data) : {};
-  }
-
-  static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
-    await buyAirtime(network: network, phone: phone, amount: amount);
-  }
-
-  static Future<Map<String, dynamic>> buyAirtime({required String network, required String phone, required double amount}) async {
-    if (currentUser == null) throw Exception('Please sign in again.');
-    if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
-    final response = await _client.functions.invoke('vtpass-purchase', body: {'type': 'airtime', 'network': network, 'phone': phone, 'amount': amount});
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    return data is Map ? Map<String, dynamic>.from(data) : {};
-  }
-
-  static Future<List<Map<String, dynamic>>> getDataPlans(String network) async {
-    if (currentUser == null) throw Exception('Please sign in again.');
-    final response = await _client.functions.invoke('vtpass-catalog', body: {'network': network});
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    final plans = data is Map && data['plans'] is List ? data['plans'] as List : const [];
-    return plans.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-  }
-
-  static Future<Map<String, dynamic>> buyData({required String network, required String phone, required String plan, required String variationCode, required double amount}) async {
-    if (currentUser == null) throw Exception('Please sign in again.');
-    if (amount <= 0) throw Exception('Enter a valid amount.');
-    final response = await _client.functions.invoke('vtpass-purchase', body: {'type': 'data', 'network': network, 'phone': phone, 'plan': plan, 'variation_code': variationCode, 'amount': amount});
-    final data = response.data;
-    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
-    return data is Map ? Map<String, dynamic>.from(data) : {};
-  }
-
-  static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
-    throw Exception('Please choose a data plan from the live provider catalogue.');
-  }
-
-  static Future<void> createAirtimeCashRequest({required String network, required String phone, required double amount, required String payoutBank, required String accountNumber, required String accountName}) async {
-    if (currentUser == null) throw Exception('Please sign in again.'); if (amount < 100) throw Exception('Minimum airtime to cash amount is ₦100.');
-    await _client.rpc('create_airtime_cash_request', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_payout_bank': payoutBank, 'p_account_number': accountNumber, 'p_account_name': accountName, 'p_reference': 'ATC-${DateTime.now().microsecondsSinceEpoch}'});
-  }
+  static Future<List<Map<String, dynamic>>> getBanks() async { final response = await _client.functions.invoke('bank-transfer', body: {'action': 'banks'}); final data = response.data; if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); final banks = data is Map && data['banks'] is List ? data['banks'] as List : const []; return banks.map((e) => Map<String, dynamic>.from(e as Map)).toList(); }
+  static Future<Map<String, dynamic>> resolveBankAccount({required String bankCode, required String accountNumber}) async { final response = await _client.functions.invoke('bank-transfer', body: {'action': 'resolve', 'bank_code': bankCode, 'account_number': accountNumber}); final data = response.data; if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); if (data is! Map || data['verified'] != true) throw Exception('Unable to verify bank account.'); return Map<String, dynamic>.from(data); }
+  static Future<Map<String, dynamic>> transferToBank({required String bankCode, required String bankName, required String accountNumber, required String accountName, required double amount}) async { if (currentUser == null) throw Exception('Please sign in again.'); if (amount < 100) throw Exception('Minimum bank transfer is ₦100.'); final response = await _client.functions.invoke('bank-transfer', body: {'action': 'transfer', 'bank_code': bankCode, 'bank_name': bankName, 'account_number': accountNumber, 'account_name': accountName, 'amount': amount}); final data = response.data; if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); return data is Map ? Map<String, dynamic>.from(data) : {}; }
+  static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async { await buyAirtime(network: network, phone: phone, amount: amount); }
+  static Future<Map<String, dynamic>> buyAirtime({required String network, required String phone, required double amount}) async { if (currentUser == null) throw Exception('Please sign in again.'); if (amount < 50) throw Exception('Minimum airtime amount is ₦50.'); final response = await _client.functions.invoke('vtpass-purchase', body: {'type': 'airtime', 'network': network, 'phone': phone, 'amount': amount}); final data = response.data; if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); return data is Map ? Map<String, dynamic>.from(data) : {}; }
+  static Future<List<Map<String, dynamic>>> getDataPlans(String network) async { if (currentUser == null) throw Exception('Please sign in again.'); final response = await _client.functions.invoke('vtpass-catalog', body: {'network': network}); final data = response.data; if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); final plans = data is Map && data['plans'] is List ? data['plans'] as List : const []; return plans.map((e) => Map<String, dynamic>.from(e as Map)).toList(); }
+  static Future<Map<String, dynamic>> buyData({required String network, required String phone, required String plan, required String variationCode, required double amount}) async { if (currentUser == null) throw Exception('Please sign in again.'); if (amount <= 0) throw Exception('Enter a valid amount.'); final response = await _client.functions.invoke('vtpass-purchase', body: {'type': 'data', 'network': network, 'phone': phone, 'plan': plan, 'variation_code': variationCode, 'amount': amount}); final data = response.data; if (data is Map && data['error'] != null) throw Exception(data['error'].toString()); return data is Map ? Map<String, dynamic>.from(data) : {}; }
+  static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async { throw Exception('Please choose a data plan from the live provider catalogue.'); }
+  static Future<void> createAirtimeCashRequest({required String network, required String phone, required double amount, required String payoutBank, required String accountNumber, required String accountName}) async { if (currentUser == null) throw Exception('Please sign in again.'); if (amount < 100) throw Exception('Minimum airtime to cash amount is ₦100.'); await _client.rpc('create_airtime_cash_request', params: {'p_network': network, 'p_phone': phone, 'p_amount': amount, 'p_payout_bank': payoutBank, 'p_account_number': accountNumber, 'p_account_name': accountName, 'p_reference': 'ATC-${DateTime.now().microsecondsSinceEpoch}'}); }
 }
