@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'services/wallet_service.dart';
 
-const _bg = Color(0xFF101010);
-const _panel = Color(0xFF1A1A1D);
-const _panel2 = Color(0xFF202023);
+const _bg = Color(0xFF061B49);
+const _panel = Color(0xFF0A2C68);
+const _panel2 = Color(0xFF102A56);
 const _navy = Color(0xFF061B49);
 const _navy2 = Color(0xFF0A2C68);
-const _gold = Color(0xFFFFC72C);
-const _goldSoft = Color(0xFF2B2513);
-const _muted = Color(0xFF9B9BA6);
+const _gold = Color(0xFFB8860B);
+const _goldSoft = Color(0xFF2A2110);
+const _muted = Color(0xFFB7C2D6);
 const _shopAddress = 'Shop No. 32, Gidan Late Mallam Shitu, Opposite Hamidu Mosque, Shanta, Unguwar Hardo Shagari Road, Bauchi, Bauchi State, Nigeria';
 const _whatsapp = '2349044444921';
 const _call = '07077777636';
@@ -54,11 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _tile(Icons.card_giftcard,'Gift Card',()=>_soon('Gift Card')),
   ])]));
 
-  Widget _tile(IconData icon,String label,VoidCallback tap,{bool hot=false})=>InkWell(onTap:tap,borderRadius:BorderRadius.circular(18),child:Stack(children:[Column(children:[Container(width:58,height:58,decoration:BoxDecoration(color:_panel,borderRadius:BorderRadius.circular(17),border:Border.all(color:Colors.white10)),child:Icon(icon,color:_gold,size:30)),const SizedBox(height:7),Expanded(child:Text(label,textAlign:TextAlign.center,style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.w700,height:1.1))) ]),if(hot)Positioned(top:-2,right:0,child:Container(padding:const EdgeInsets.symmetric(horizontal:5,vertical:2),decoration:BoxDecoration(color:_gold,borderRadius:BorderRadius.circular(7)),child:const Text('HOT',style:TextStyle(color:_navy,fontSize:8,fontWeight:FontWeight.w900))))]));
+  Widget _tile(IconData icon,String label,VoidCallback tap,{bool hot=false})=>InkWell(onTap:tap,borderRadius:BorderRadius.circular(18),child:Stack(children:[Column(children:[Container(width:58,height:58,decoration:BoxDecoration(color:_panel2,borderRadius:BorderRadius.circular(17),border:Border.all(color:Colors.white10)),child:Icon(icon,color:_gold,size:30)),const SizedBox(height:7),Expanded(child:Text(label,textAlign:TextAlign.center,style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.w700,height:1.1))) ]),if(hot)Positioned(top:-2,right:0,child:Container(padding:const EdgeInsets.symmetric(horizontal:5,vertical:2),decoration:BoxDecoration(color:_gold,borderRadius:BorderRadius.circular(7)),child:const Text('HOT',style:TextStyle(color:_navy,fontSize:8,fontWeight:FontWeight.w900))))]));
 
   Widget _shop()=>Padding(padding:const EdgeInsets.fromLTRB(18,8,18,0),child:Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:_panel,borderRadius:BorderRadius.circular(20),border:Border.all(color:_gold.withValues(alpha:.3))),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Row(children:[Icon(Icons.storefront_outlined,color:_gold),SizedBox(width:9),Text('H.salah Communication',style:TextStyle(color:Colors.white,fontSize:17,fontWeight:FontWeight.w900))]),const SizedBox(height:8),const Text(_shopAddress,style:TextStyle(color:Colors.white70,fontSize:13,height:1.35)),const SizedBox(height:12),Row(children:[Expanded(child:OutlinedButton.icon(onPressed:_openCall,icon:const Icon(Icons.call),label:const Text('0707 777 7636'))),const SizedBox(width:10),Expanded(child:OutlinedButton.icon(onPressed:()=>_openWhatsApp(),icon:const Icon(Icons.chat),label:const Text('09044444921')))])]));
 
-  Widget _bottom()=>NavigationBar(backgroundColor:_panel,indicatorColor:_gold.withValues(alpha:.16),selectedIndex:0,onDestinationSelected:(i){if(i==1)Navigator.pushNamed(context,'/orders');if(i==2)Navigator.pushNamed(context,'/transactions');if(i==3)Navigator.pushNamed(context,'/wallet');if(i==4)Navigator.pushNamed(context,'/profile');},destinations:const[NavigationDestination(icon:Icon(Icons.home_outlined,color:Colors.white60),selectedIcon:Icon(Icons.home,color:_gold),label:'Home'),NavigationDestination(icon:Icon(Icons.receipt_long_outlined,color:Colors.white60),label:'Orders'),NavigationDestination(icon:Icon(Icons.swap_horiz,color:Colors.white60),label:'Transactions'),NavigationDestination(icon:Icon(Icons.account_balance_wallet_outlined,color:Colors.white60),label:'Wallet'),NavigationDestination(icon:Icon(Icons.person_outline,color:Colors.white60),label:'Profile')]);
+  Widget _bottom()=>NavigationBar(backgroundColor:_navy2,indicatorColor:_gold.withValues(alpha:.16),selectedIndex:0,onDestinationSelected:(i){if(i==1)Navigator.pushNamed(context,'/orders');if(i==2)Navigator.pushNamed(context,'/transactions');if(i==3)Navigator.pushNamed(context,'/wallet');if(i==4)Navigator.pushNamed(context,'/profile');},destinations:const[NavigationDestination(icon:Icon(Icons.home_outlined,color:Colors.white60),selectedIcon:Icon(Icons.home,color:_gold),label:'Home'),NavigationDestination(icon:Icon(Icons.receipt_long_outlined,color:Colors.white60),label:'Orders'),NavigationDestination(icon:Icon(Icons.swap_horiz,color:Colors.white60),label:'Transactions'),NavigationDestination(icon:Icon(Icons.account_balance_wallet_outlined,color:Colors.white60),label:'Wallet'),NavigationDestination(icon:Icon(Icons.person_outline,color:Colors.white60),label:'Profile')]);
 
   void _soon(String name)=>ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('$name is not connected yet.')));
   void _simDialog()=>showDialog<void>(context:context,builder:(_)=>AlertDialog(title:const Text('SIM Services'),content:const Text('MTN, Airtel, Glo and T2 SIM sales and supported SIM-swap assistance are available through H.salah Communication.'),actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Close')),ElevatedButton.icon(onPressed:(){Navigator.pop(context);_openWhatsApp('Hello H.salah Communication, I want to buy a SIM or request SIM swap.');},icon:const Icon(Icons.chat),label:const Text('WhatsApp'))]));
