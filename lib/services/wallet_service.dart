@@ -121,6 +121,37 @@ class WalletService {
     ];
   }
 
+  static Future<List<Map<String, dynamic>>> getBanks() async {
+    final response = await _client.functions.invoke('bank-transfer', body: {'action': 'banks'});
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    final banks = data is Map && data['banks'] is List ? data['banks'] as List : const [];
+    return banks.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  static Future<Map<String, dynamic>> resolveBankAccount({required String bankCode, required String accountNumber}) async {
+    final response = await _client.functions.invoke('bank-transfer', body: {'action': 'resolve', 'bank_code': bankCode, 'account_number': accountNumber});
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    if (data is! Map || data['verified'] != true) throw Exception('Unable to verify bank account.');
+    return Map<String, dynamic>.from(data);
+  }
+
+  static Future<Map<String, dynamic>> transferToBank({required String bankCode, required String bankName, required String accountNumber, required String accountName, required double amount}) async {
+    if (currentUser == null) throw Exception('Please sign in again.');
+    if (amount < 100) throw Exception('Minimum bank transfer is ₦100.');
+    final response = await _client.functions.invoke('bank-transfer', body: {
+      'action': 'transfer', 'bank_code': bankCode, 'bank_name': bankName, 'account_number': accountNumber, 'account_name': accountName, 'amount': amount,
+    });
+    final data = response.data;
+    if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
+    return data is Map ? Map<String, dynamic>.from(data) : {};
+  }
+
+  static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
+    await buyAirtime(network: network, phone: phone, amount: amount);
+  }
+
   static Future<Map<String, dynamic>> buyAirtime({required String network, required String phone, required double amount}) async {
     if (currentUser == null) throw Exception('Please sign in again.');
     if (amount < 50) throw Exception('Minimum airtime amount is ₦50.');
@@ -146,10 +177,6 @@ class WalletService {
     final data = response.data;
     if (data is Map && data['error'] != null) throw Exception(data['error'].toString());
     return data is Map ? Map<String, dynamic>.from(data) : {};
-  }
-
-  static Future<void> createAirtimeOrder({required String network, required String phone, required double amount}) async {
-    await buyAirtime(network: network, phone: phone, amount: amount);
   }
 
   static Future<void> createDataOrder({required String network, required String phone, required String plan, required double amount}) async {
