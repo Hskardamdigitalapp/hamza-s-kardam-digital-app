@@ -3,41 +3,59 @@ set -euo pipefail
 python3 - <<'PY'
 from pathlib import Path
 
-# Repair only known source/API issues before the release build.
-fixes = {
-    'lib/main.dart': [
-        ("await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);", "await Supabase.initialize(url: supabaseUrl, publishableKey: supabasePublishableKey);"),
-    ],
-    'lib/screens/data_screen.dart': [
-        ("Icon(Icons.chevron_right_rounded, color: _navy)])),", "Icon(Icons.chevron_right_rounded, color: _navy)]))),"),
-    ],
-    'lib/screens/airtime_screen.dart': [
-        ("Icon(Icons.chevron_right_rounded, color: _navy)])));", "Icon(Icons.chevron_right_rounded, color: _navy)])));"),
-        ("Icon(Icons.chevron_right_rounded, color: _navy)]))));", "Icon(Icons.chevron_right_rounded, color: _navy)])));"),
-        ("Icon(Icons.chevron_right_rounded, color: _navy)]));", "Icon(Icons.chevron_right_rounded, color: _navy)])));"),
-    ],
-    'lib/screens/ussd_screen.dart': [
-        ("color: _gold", "color: Color(0xFFC89B3C)"),
-    ],
-}
-for name, pairs in fixes.items():
-    p = Path(name)
-    if not p.exists():
-        continue
-    s = p.read_text()
-    for old, new in pairs:
-        s = s.replace(old, new)
+# Supabase API rename for current supabase_flutter.
+p = Path('lib/main.dart')
+if p.exists():
+    s = p.read_text().replace(
+        "await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);",
+        "await Supabase.initialize(url: supabaseUrl, publishableKey: supabasePublishableKey);",
+    )
     p.write_text(s)
 
-# Repair the airtime-to-cash locked-state closing delimiter if present.
-p = Path('lib/screens/airtime_to_cash_screen.dart')
+# The repository also contains a legacy root main.dart. Keep its imports valid.
+p = Path('main.dart')
 if p.exists():
     s = p.read_text()
-    old = "Text('Please wait for verification approval.', style: TextStyle(color: Color(0xFF061B49), fontWeight: FontWeight.w700))])); }"
-    new = "Text('Please wait for verification approval.', style: TextStyle(color: Color(0xFF061B49), fontWeight: FontWeight.w700))]))); }"
-    s = s.replace(old, new)
+    s = s.replace("import 'screens/login_screen.dart';", "import 'lib/screens/login_screen.dart';")
+    s = s.replace("import 'screens/register_screen.dart';", "import 'lib/screens/register_screen.dart';")
+    s = s.replace("import 'screens/home_screen.dart';", "import 'lib/home_screen.dart';")
+    s = s.replace(
+        "await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);",
+        "await Supabase.initialize(url: supabaseUrl, publishableKey: supabasePublishableKey);",
+    )
+    p.write_text(s)
+
+# Fix the missing closing parenthesis in the data USSD card (the comma means
+# InkWell closes on the following line, so do not add an extra ')' before it).
+p = Path('lib/screens/data_screen.dart')
+if p.exists():
+    s = p.read_text()
+    s = s.replace(
+        "Icon(Icons.chevron_right_rounded, color: _navy)]))),\n  );",
+        "Icon(Icons.chevron_right_rounded, color: _navy)])),\n  );",
+    )
+    p.write_text(s)
+
+# Fix the missing closing parenthesis on the Profile logout button.
+p = Path('lib/screens/profile_screen.dart')
+if p.exists():
+    s = p.read_text()
+    s = s.replace(
+        "shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),\n          ]));",
+        "shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),\n          ]));",
+    )
+    p.write_text(s)
+
+# Fix the missing closing parenthesis around each USSD ListTile map item.
+p = Path('lib/screens/ussd_screen.dart')
+if p.exists():
+    s = p.read_text()
+    s = s.replace(
+        "icon: const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFC89B3C))) ]))\n    ])),",
+        "icon: const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFC89B3C))) ])))\n    ])),",
+    )
     p.write_text(s)
 PY
 
-# Warnings are not build blockers; Dart errors still fail this validation.
+# Keep informational diagnostics non-fatal while still failing on real Dart errors.
 dart analyze --no-fatal-warnings
