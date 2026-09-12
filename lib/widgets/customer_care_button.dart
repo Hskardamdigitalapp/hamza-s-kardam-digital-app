@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../screens/customer_care_screen.dart';
 
 const _gold = Color(0xFFB8860B);
@@ -13,24 +14,34 @@ class CustomerCareButton extends StatefulWidget {
 class _CustomerCareButtonState extends State<CustomerCareButton> {
   Timer? _timer;
   bool _dimmed = false;
-  @override void dispose() { _timer?.cancel(); super.dispose(); }
+
+  @override
+  void dispose() { _timer?.cancel(); super.dispose(); }
+
   Future<void> _openCustomerCare() async {
     _timer?.cancel();
     setState(() => _dimmed = true);
-    _timer = Timer(const Duration(seconds: 2), () { if (mounted) setState(() => _dimmed = false); });
-    await Future<void>.delayed(const Duration(milliseconds: 180));
+    _timer = Timer(const Duration(milliseconds: 900), () { if (mounted) setState(() => _dimmed = false); });
+    await Future<void>.delayed(const Duration(milliseconds: 120));
     if (!mounted) return;
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CustomerCareScreen()));
+    final route = ModalRoute.of(context)?.settings.name;
+    if (route == '/login' || route == '/register') {
+      await launchUrl(Uri.parse('https://wa.me/2349044444921?text=Hello%20HAMZA%20S.%20KARDAM%20DIGITAL%20APP%2C%20I%20need%20customer%20care%20support.'), mode: LaunchMode.externalApplication);
+      return;
+    }
+    await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const CustomerCareScreen()));
     if (mounted) setState(() => _dimmed = false);
   }
-  @override Widget build(BuildContext context) {
+
+  @override
+  Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Positioned(
       right: 16, bottom: bottom + 16,
       child: Semantics(
         button: true, label: 'Customer care on WhatsApp',
         child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 220), opacity: _dimmed ? .38 : 1,
+          duration: const Duration(milliseconds: 180), opacity: _dimmed ? .35 : 1,
           child: Material(
             color: Colors.transparent, elevation: 10, shadowColor: _gold.withValues(alpha: .45), borderRadius: BorderRadius.circular(18),
             child: InkWell(
