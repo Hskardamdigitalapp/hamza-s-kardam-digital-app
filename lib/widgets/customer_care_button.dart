@@ -32,7 +32,7 @@ class _CustomerCareButtonState extends State<CustomerCareButton> {
     });
 
     final uri = Uri.parse(
-      'https://wa.me/$_whatsappNumber?text=${Uri.encodeComponent('Hello H.salah Communication, I need customer care support.')} ',
+      'https://wa.me/$_whatsappNumber?text=${Uri.encodeComponent('Hello H.salah Communication, I need customer care support.')}',
     );
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
