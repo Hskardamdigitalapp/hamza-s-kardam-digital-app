@@ -61,6 +61,11 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
+      - name: Repair and validate Dart source
+        run: |
+          bash tool/repair_build_syntax.sh
+          dart analyze --fatal-infos
+
       - name: Build optimized release APK
         run: flutter build apk --release --target=lib/main.dart --no-pub
 
