@@ -14,8 +14,8 @@ class NetworkLogo extends StatelessWidget {
         return 'https://www.airtel.com.ng/favicon.ico';
       case 'glo':
         return 'https://www.gloworld.com/favicon.ico';
-      case '9mobile':
-        return 'https://9mobile.com.ng/favicon.ico';
+      case 't2':
+        return 'https://www.t2mobile.com.ng/favicon.ico';
       default:
         return '';
     }
@@ -23,7 +23,7 @@ class NetworkLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = network == '9mobile' ? '9' : network.substring(0, 1).toUpperCase();
+    final label = network.toLowerCase() == 't2' ? 'T2' : network.substring(0, 1).toUpperCase();
     return Container(
       width: size,
       height: size,
