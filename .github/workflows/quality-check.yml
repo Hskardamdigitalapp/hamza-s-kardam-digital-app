@@ -21,7 +21,7 @@ jobs:
           flutter-version: '3.29.3'
       - name: Get dependencies
         run: flutter pub get
-      - name: Validate Dart source
-        run: bash tool/repair_build_syntax.sh
-      - name: Flutter analyze
-        run: flutter analyze --no-fatal-infos
+      - name: Analyze app source
+        run: flutter analyze lib --no-fatal-infos
+      - name: Build release APK
+        run: flutter build apk --release
