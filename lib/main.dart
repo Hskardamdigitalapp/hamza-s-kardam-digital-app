@@ -43,7 +43,7 @@ class KardamDigitalApp extends StatelessWidget {
   Widget build(BuildContext context) {
     const navy = Color(0xFF061B49);
     const navy2 = Color(0xFF0A2C68);
-    const gold = Color(0xFFC89B3C);
+    const gold = Color(0xFFB8860B);
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: AppThemeController.mode,
       builder: (context, mode, _) => MaterialApp(
@@ -52,7 +52,7 @@ class KardamDigitalApp extends StatelessWidget {
         navigatorKey: _navigatorKey,
         themeMode: mode,
         theme: ThemeData(useMaterial3: true, brightness: Brightness.light, colorScheme: ColorScheme.fromSeed(seedColor: navy), scaffoldBackgroundColor: const Color(0xFFF5F7FB), fontFamily: 'Roboto', appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white), inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5)))),
-        darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark, colorScheme: ColorScheme.fromSeed(seedColor: gold, brightness: Brightness.dark), scaffoldBackgroundColor: const Color(0xFF101216), fontFamily: 'Roboto', appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white), inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: Color(0xFF1B1D22), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5)))),
+        darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark, colorScheme: ColorScheme.fromSeed(seedColor: gold, brightness: Brightness.dark), scaffoldBackgroundColor: navy, fontFamily: 'Roboto', appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white), inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: navy2, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5)))),
         routes: {
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
@@ -135,12 +135,12 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   Future<bool> _confirmExit() async {
     if (!mounted) return false;
     return await showDialog<bool>(context: context, barrierDismissible: false, builder: (c) => AlertDialog(
-      backgroundColor: const Color(0xFF1B1B1D), surfaceTintColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+      backgroundColor: navyDialog, surfaceTintColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         const Icon(Icons.warning_amber_rounded, color: Color(0xFFFF4D4D), size: 62), const SizedBox(height: 16),
         const Text('Exit App', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900)), const SizedBox(height: 12),
-        const Text('Are you sure you want to exit?', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF9B9BA6), fontSize: 18, fontWeight: FontWeight.w600)), const SizedBox(height: 24),
-        Row(children: [Expanded(child: SizedBox(height: 56, child: ElevatedButton(onPressed: () => Navigator.pop(c, false), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2196F3), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('Cancel', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800))))), const SizedBox(width: 14), Expanded(child: SizedBox(height: 56, child: ElevatedButton(onPressed: () => Navigator.pop(c, true), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF44336), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('Exit', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)))))]),
+        const Text('Are you sure you want to exit?', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFFB7C2D6), fontSize: 18, fontWeight: FontWeight.w600)), const SizedBox(height: 24),
+        Row(children: [Expanded(child: SizedBox(height: 56, child: ElevatedButton(onPressed: () => Navigator.pop(c, false), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0A2C68), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('Cancel', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800))))), const SizedBox(width: 14), Expanded(child: SizedBox(height: 56, child: ElevatedButton(onPressed: () => Navigator.pop(c, true), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF44336), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('Exit', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)))))]),
       ]),
     )) ?? false;
   }
@@ -162,6 +162,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     ]),
   );
 }
+
+const navyDialog = Color(0xFF0A2C68);
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
