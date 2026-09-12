@@ -1,0 +1,27 @@
+name: Flutter Quality Check
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.29.3'
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Validate Dart source
+        run: bash tool/repair_build_syntax.sh
+      - name: Flutter analyze
+        run: flutter analyze --no-fatal-infos
