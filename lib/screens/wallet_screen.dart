@@ -73,6 +73,13 @@ class _WalletScreenState extends State<WalletScreen> {
                 ]),
               );
             }),
+            const SizedBox(height: 14),
+            SizedBox(width: double.infinity, child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(backgroundColor: _goldLight, foregroundColor: _navy, padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+              onPressed: () => Navigator.pushNamed(context, '/transfer-to-bank'),
+              icon: const Icon(Icons.account_balance),
+              label: const Text('Transfer to Bank', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+            )),
             const SizedBox(height: 18),
             const Text('Choose how you want to add money.', style: TextStyle(color: _navy, fontSize: 18, fontWeight: FontWeight.w800)),
             const SizedBox(height: 12),
