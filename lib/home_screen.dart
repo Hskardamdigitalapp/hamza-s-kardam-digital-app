@@ -8,7 +8,8 @@ const _gold = Color(0xFFC89B3C);
 const _goldLight = Color(0xFFE7C66A);
 const _bg = Color(0xFFF5F7FB);
 const _shopAddress = 'Shop No. 32, Gidan Late Mallam Shitu, Opposite Hamidu Mosque, Shanta, Unguwar Hardo Shagari Road, Bauchi, Bauchi State, Nigeria';
-const _whatsappNumber = '2347084646468';
+const _whatsappNumber = '2349044444921';
+const _callNumber = '07077777636';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,26 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showAllServices = false;
 
   @override
-  void initState() {
-    super.initState();
-    _balanceFuture = WalletService.getBalance();
-  }
-
-  Future<void> _refresh() async {
-    setState(() => _balanceFuture = WalletService.getBalance());
-    await _balanceFuture;
-  }
-
-  void _soon(String service) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$service is coming soon.')));
-  }
+  void initState() { super.initState(); _balanceFuture = WalletService.getBalance(); }
+  Future<void> _refresh() async { setState(() => _balanceFuture = WalletService.getBalance()); await _balanceFuture; }
+  void _soon(String service) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$service is coming soon.')));
 
   Future<void> _whatsapp([String message = 'Hello H.salah Communication, I need help with your digital services.']) async {
     final uri = Uri.parse('https://wa.me/$_whatsappNumber?text=${Uri.encodeComponent(message)}');
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!opened && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp could not be opened.')));
-    }
+    if (!opened && mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp could not be opened.')));
   }
 
   @override
@@ -50,316 +39,36 @@ class _HomeScreenState extends State<HomeScreen> {
     final avatar = WalletService.avatarUrl;
     return Scaffold(
       backgroundColor: _bg,
-      body: RefreshIndicator(
-        color: _gold,
-        onRefresh: _refresh,
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(child: _header(name, avatar)),
-            SliverToBoxAdapter(child: _walletCard()),
-            SliverToBoxAdapter(child: _services()),
-            SliverToBoxAdapter(child: _businessInfo()),
-            SliverToBoxAdapter(child: _whatsappBanner()),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          ],
-        ),
-      ),
+      body: RefreshIndicator(color: _gold, onRefresh: _refresh, child: CustomScrollView(slivers: [SliverToBoxAdapter(child: _header(name, avatar)), SliverToBoxAdapter(child: _walletCard()), SliverToBoxAdapter(child: _services()), SliverToBoxAdapter(child: _businessInfo()), SliverToBoxAdapter(child: _whatsappBanner()), const SliverToBoxAdapter(child: SizedBox(height: 24))])),
       bottomNavigationBar: _bottomNav(),
     );
   }
 
-  Widget _header(String? name, String? avatar) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 48, 20, 22),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [_navy, _navy2]),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                      child: const Center(child: Text('HK', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 17))),
-                    ),
-                    const SizedBox(width: 10),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('HAMZA S. KARDAM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
-                        Text('DIGITAL APP', style: TextStyle(color: _goldLight, fontWeight: FontWeight.bold, fontSize: 12)),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-                Text('Hello, ${name?.isNotEmpty == true ? name : 'Welcome'} 👋', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24)),
-                const SizedBox(height: 3),
-                const Text('Fast • Reliable • Secure', style: TextStyle(color: Colors.white70, fontSize: 14)),
-              ],
-            ),
-          ),
-          Column(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/profile'),
-                child: CircleAvatar(
-                  radius: 31,
-                  backgroundColor: _goldLight,
-                  backgroundImage: avatar?.isNotEmpty == true ? NetworkImage(avatar!) : null,
-                  child: avatar?.isNotEmpty == true ? null : const Icon(Icons.person, color: _navy, size: 34),
-                ),
-              ),
-              const SizedBox(height: 10),
-              IconButton(onPressed: () => _soon('Notifications'), icon: const Icon(Icons.notifications_none, color: Colors.white, size: 28)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _header(String? name, String? avatar) => Container(padding: const EdgeInsets.fromLTRB(20, 48, 20, 22), decoration: const BoxDecoration(gradient: LinearGradient(colors: [_navy, _navy2]), borderRadius: BorderRadius.vertical(bottom: Radius.circular(28))), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Container(width: 42, height: 42, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: const Center(child: Text('HK', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 17))),), const SizedBox(width: 10), const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('HAMZA S. KARDAM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)), Text('DIGITAL APP', style: TextStyle(color: _goldLight, fontWeight: FontWeight.bold, fontSize: 12))])]), const SizedBox(height: 22), Text('Hello, ${name?.isNotEmpty == true ? name : 'Welcome'} 👋', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24)), const SizedBox(height: 3), const Text('Fast • Reliable • Secure', style: TextStyle(color: Colors.white70, fontSize: 14))])), Column(children: [GestureDetector(onTap: () => Navigator.pushNamed(context, '/profile'), child: CircleAvatar(radius: 31, backgroundColor: _goldLight, backgroundImage: avatar?.isNotEmpty == true ? NetworkImage(avatar!) : null, child: avatar?.isNotEmpty == true ? null : const Icon(Icons.person, color: _navy, size: 34))), const SizedBox(height: 10), IconButton(onPressed: () => _soon('Notifications'), icon: const Icon(Icons.notifications_none, color: Colors.white, size: 28))])]);
 
-  Widget _walletCard() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [_navy2, _navy]),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: _gold, width: 1.4),
-        ),
-        child: FutureBuilder<double>(
-          future: _balanceFuture,
-          builder: (context, snapshot) {
-            final balance = snapshot.data ?? 0;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.account_balance_wallet_outlined, color: _goldLight),
-                    const SizedBox(width: 8),
-                    const Text('Wallet Balance', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => setState(() => _hideBalance = !_hideBalance),
-                      icon: Icon(_hideBalance ? Icons.visibility_off : Icons.visibility, color: Colors.white70),
-                    ),
-                  ],
-                ),
-                Text(_hideBalance ? '₦ ••••••' : '₦${balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900)),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(child: ElevatedButton.icon(onPressed: () => Navigator.pushNamed(context, '/wallet'), icon: const Icon(Icons.add), label: const Text('Fund Wallet'))),
-                    const SizedBox(width: 10),
-                    Expanded(child: OutlinedButton.icon(onPressed: _showMore, icon: const Icon(Icons.more_horiz), label: const Text('More Options'))),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
+  Widget _walletCard() => Padding(padding: const EdgeInsets.fromLTRB(18, 16, 18, 8), child: Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(gradient: const LinearGradient(colors: [_navy2, _navy]), borderRadius: BorderRadius.circular(24), border: Border.all(color: _gold, width: 1.4)), child: FutureBuilder<double>(future: _balanceFuture, builder: (context, snapshot) { final balance = snapshot.data ?? 0; return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [const Icon(Icons.account_balance_wallet_outlined, color: _goldLight), const SizedBox(width: 8), const Text('Wallet Balance', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)), const Spacer(), IconButton(onPressed: () => setState(() => _hideBalance = !_hideBalance), icon: Icon(_hideBalance ? Icons.visibility_off : Icons.visibility, color: Colors.white70))]), Text(_hideBalance ? '₦ ••••••' : '₦${balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900)), const SizedBox(height: 14), Row(children: [Expanded(child: ElevatedButton.icon(onPressed: () => Navigator.pushNamed(context, '/wallet'), icon: const Icon(Icons.add), label: const Text('Fund Wallet'))), const SizedBox(width: 10), Expanded(child: OutlinedButton.icon(onPressed: _showMore, icon: const Icon(Icons.more_horiz), label: const Text('More Options')))])]); }))); 
 
   Widget _services() {
-    final services = <_Service>[
-      _Service(Icons.wifi, 'Buy Data', () => Navigator.pushNamed(context, '/data')),
-      _Service(Icons.phone_android, 'Buy Airtime', () => Navigator.pushNamed(context, '/airtime')),
-      _Service(Icons.currency_exchange, 'Airtime to\nCash', () => Navigator.pushNamed(context, '/airtime-to-cash'), true),
-      _Service(Icons.sim_card, 'Buy SIMs', _showSimDialog),
-      _Service(Icons.swap_horiz, 'SIM Swap', _showSimDialog),
-      _Service(Icons.home_work_outlined, 'Home Service', () => _whatsapp('Hello H.salah Communication, I need your home service. Please let me know how you can assist me.')),
-      _Service(Icons.currency_bitcoin, 'Crypto', () => Navigator.pushNamed(context, '/fund-crypto')),
-      _Service(Icons.card_giftcard, 'Gift With\nLove', () => _soon('Gift With Love')),
-      _Service(Icons.bolt, 'Electricity', () => _soon('Electricity')),
-      _Service(Icons.live_tv, 'Cable', () => _soon('Cable')),
-      _Service(Icons.school, 'Education', () => _soon('Education')),
-      _Service(Icons.flight, 'Flight', () => _soon('Flight')),
-      _Service(Icons.redeem, 'Gift Card', () => _soon('Gift Card')),
-      _Service(Icons.app_registration, 'Registration', () => _soon('Registration')),
-      _Service(Icons.account_balance, 'Withdraw', () => _soon('Withdraw')),
-      _Service(Icons.person_add_alt_1, 'Send to User', () => _soon('Send to User')),
-      _Service(Icons.savings, 'Earn', () => _soon('Earn')),
-    ];
+    final services = <_Service>[_Service(Icons.wifi, 'Buy Data', () => Navigator.pushNamed(context, '/data')), _Service(Icons.phone_android, 'Buy Airtime', () => Navigator.pushNamed(context, '/airtime')), _Service(Icons.currency_exchange, 'Airtime to\nCash', () => Navigator.pushNamed(context, '/airtime-to-cash'), true), _Service(Icons.sim_card, 'Buy SIMs', _showSimDialog), _Service(Icons.swap_horiz, 'SIM Swap', _showSimDialog), _Service(Icons.home_work_outlined, 'Home Service', () => _whatsapp('Hello H.salah Communication, I need your home service. Please let me know how you can assist me.')), _Service(Icons.currency_bitcoin, 'Crypto', () => Navigator.pushNamed(context, '/fund-crypto')), _Service(Icons.card_giftcard, 'Gift With\nLove', () => _soon('Gift With Love')), _Service(Icons.bolt, 'Electricity', () => _soon('Electricity')), _Service(Icons.live_tv, 'Cable', () => _soon('Cable')), _Service(Icons.school, 'Education', () => _soon('Education')), _Service(Icons.flight, 'Flight', () => _soon('Flight')), _Service(Icons.redeem, 'Gift Card', () => _soon('Gift Card')), _Service(Icons.app_registration, 'Registration', () => _soon('Registration')), _Service(Icons.account_balance, 'Withdraw', () => _soon('Withdraw')), _Service(Icons.person_add_alt_1, 'Send to User', () => _soon('Send to User')), _Service(Icons.savings, 'Earn', () => _soon('Earn'))];
     final visible = _showAllServices ? services : services.take(4).toList();
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 12, 10, 16),
-      padding: const EdgeInsets.fromLTRB(12, 18, 12, 16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Text('Our Services', style: TextStyle(color: _navy, fontSize: 22, fontWeight: FontWeight.w900)),
-              const Spacer(),
-              TextButton(onPressed: () => setState(() => _showAllServices = !_showAllServices), child: Text(_showAllServices ? 'Show less' : 'View all', style: const TextStyle(color: _gold, fontWeight: FontWeight.bold))),
-            ],
-          ),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: visible.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 14, crossAxisSpacing: 8, childAspectRatio: .78),
-            itemBuilder: (_, i) => _tile(visible[i]),
-          ),
-        ],
-      ),
-    );
+    return Container(margin: const EdgeInsets.fromLTRB(10, 12, 10, 16), padding: const EdgeInsets.fromLTRB(12, 18, 12, 16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)), child: Column(children: [Row(children: [const Text('Our Services', style: TextStyle(color: _navy, fontSize: 22, fontWeight: FontWeight.w900)), const Spacer(), TextButton(onPressed: () => setState(() => _showAllServices = !_showAllServices), child: Text(_showAllServices ? 'Show less' : 'View all', style: const TextStyle(color: _gold, fontWeight: FontWeight.bold)))]), GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), itemCount: visible.length, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 14, crossAxisSpacing: 8, childAspectRatio: .78), itemBuilder: (_, i) => _tile(visible[i]))]));
   }
 
-  Widget _tile(_Service service) {
-    return InkWell(
-      onTap: service.onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              Container(width: 58, height: 58, decoration: BoxDecoration(color: _navy.withOpacity(.055), borderRadius: BorderRadius.circular(17)), child: Icon(service.icon, color: _navy, size: 31)),
-              const SizedBox(height: 7),
-              Expanded(child: Text(service.label, textAlign: TextAlign.center, style: const TextStyle(color: _navy, fontWeight: FontWeight.w700, fontSize: 12, height: 1.1))),
-            ],
-          ),
-          if (service.hot)
-            Positioned(
-              top: -2,
-              right: 0,
-              child: Container(padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2), decoration: BoxDecoration(color: _goldLight, borderRadius: BorderRadius.circular(8)), child: const Text('HOT', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 8))),
-            ),
-        ],
-      ),
-    );
-  }
+  Widget _tile(_Service service) => InkWell(onTap: service.onTap, borderRadius: BorderRadius.circular(16), child: Stack(children: [Column(children: [Container(width: 58, height: 58, decoration: BoxDecoration(color: _navy.withOpacity(.055), borderRadius: BorderRadius.circular(17)), child: Icon(service.icon, color: _navy, size: 31)), const SizedBox(height: 7), Expanded(child: Text(service.label, textAlign: TextAlign.center, style: const TextStyle(color: _navy, fontWeight: FontWeight.w700, fontSize: 12, height: 1.1)))]), if (service.hot) Positioned(top: -2, right: 0, child: Container(padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2), decoration: BoxDecoration(color: _goldLight, borderRadius: BorderRadius.circular(8)), child: const Text('HOT', style: TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 8))))]));
 
-  Widget _businessInfo() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: _gold.withOpacity(.35))),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(children: [Icon(Icons.storefront_outlined, color: _gold), SizedBox(width: 9), Text('Visit Our Shop', style: TextStyle(color: _navy, fontSize: 17, fontWeight: FontWeight.w900))]),
-          const SizedBox(height: 8),
-          const Text(_shopAddress, style: TextStyle(color: Colors.black87, fontSize: 13, height: 1.35)),
-          const SizedBox(height: 12),
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.delivery_dining, color: _navy),
-              SizedBox(width: 8),
-              Expanded(child: Text('Home service available — need a SIM or another service? We can come to your home.', style: TextStyle(color: _navy, fontWeight: FontWeight.w700, fontSize: 13))),
-            ],
-          ),
-          const SizedBox(height: 10),
-          SizedBox(width: double.infinity, child: OutlinedButton.icon(onPressed: () => _whatsapp('Hello H.salah Communication, I want to request home service.'), icon: const Icon(Icons.chat), label: const Text('Request Home Service'))),
-        ],
-      ),
-    );
-  }
+  Widget _businessInfo() => Container(margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 2), padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: _gold.withOpacity(.35))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Row(children: [Icon(Icons.storefront_outlined, color: _gold), SizedBox(width: 9), Text('Visit Our Shop', style: TextStyle(color: _navy, fontSize: 17, fontWeight: FontWeight.w900))]), const SizedBox(height: 8), const Text(_shopAddress, style: TextStyle(color: Colors.black87, fontSize: 13, height: 1.35)), const SizedBox(height: 12), const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.delivery_dining, color: _navy), SizedBox(width: 8), Expanded(child: Text('Home service available — need a SIM or another service? We can come to your home.', style: TextStyle(color: _navy, fontWeight: FontWeight.w700, fontSize: 13)))]), const SizedBox(height: 12), const Divider(), const SizedBox(height: 6), InkWell(onTap: _call, child: const Row(children: [Icon(Icons.call_outlined, color: _navy), SizedBox(width: 10), Text('Call  0707 777 7636', style: TextStyle(color: _navy, fontWeight: FontWeight.w800))])), const SizedBox(height: 9), InkWell(onTap: _whatsapp, child: const Row(children: [Icon(Icons.chat_outlined, color: _navy), SizedBox(width: 10), Text('WhatsApp  09044444921', style: TextStyle(color: _navy, fontWeight: FontWeight.w800))])), const SizedBox(height: 12), SizedBox(width: double.infinity, child: OutlinedButton.icon(onPressed: () => _whatsapp('Hello H.salah Communication, I want to request home service.'), icon: const Icon(Icons.chat), label: const Text('Request Home Service')))]));
 
-  Widget _whatsappBanner() {
-    return InkWell(
-      onTap: () => _whatsapp(),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(18, 14, 18, 0),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(gradient: const LinearGradient(colors: [_navy, _navy2]), borderRadius: BorderRadius.circular(20)),
-        child: const Row(
-          children: [
-            CircleAvatar(backgroundColor: _goldLight, child: Icon(Icons.chat, color: _navy)),
-            SizedBox(width: 13),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buy on WhatsApp', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900)), Text('Data, airtime, SIMs & digital services — chat with us', style: TextStyle(color: Colors.white70, fontSize: 12))])),
-            Icon(Icons.arrow_forward_ios, color: _goldLight, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
+  Future<void> _call() async { final ok = await launchUrl(Uri.parse('tel:$_callNumber'), mode: LaunchMode.externalApplication); if (!ok && mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Phone dialer could not be opened.'))); }
 
-  Widget _bottomNav() {
-    return NavigationBar(
-      selectedIndex: 0,
-      onDestinationSelected: (index) {
-        if (index == 1) Navigator.pushNamed(context, '/orders');
-        if (index == 2) Navigator.pushNamed(context, '/transactions');
-        if (index == 3) Navigator.pushNamed(context, '/wallet');
-        if (index == 4) Navigator.pushNamed(context, '/profile');
-      },
-      destinations: const [
-        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-        NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'My Orders'),
-        NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Transactions'),
-        NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Wallet'),
-        NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile'),
-      ],
-    );
-  }
+  Widget _whatsappBanner() => InkWell(onTap: _whatsapp, borderRadius: BorderRadius.circular(20), child: Container(margin: const EdgeInsets.fromLTRB(18, 14, 18, 0), padding: const EdgeInsets.all(16), decoration: BoxDecoration(gradient: const LinearGradient(colors: [_navy, _navy2]), borderRadius: BorderRadius.circular(20)), child: const Row(children: [CircleAvatar(backgroundColor: _goldLight, child: Icon(Icons.chat, color: _navy)), SizedBox(width: 13), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buy on WhatsApp', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900)), Text('Data, airtime, SIMs & digital services — chat with us', style: TextStyle(color: Colors.white70, fontSize: 12))])), Icon(Icons.arrow_forward_ios, color: _goldLight, size: 18)]));
 
-  void _showMore() {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      backgroundColor: Colors.white,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Padding(padding: EdgeInsets.fromLTRB(20, 4, 20, 12), child: Align(alignment: Alignment.centerLeft, child: Text('Wallet actions', style: TextStyle(color: _navy, fontSize: 20, fontWeight: FontWeight.w900)))),
-            _action(Icons.account_balance, 'Withdraw to bank', 'Send your wallet balance to your bank account', () => _soon('Withdraw to bank')),
-            _action(Icons.add_card, 'Top up wallet', 'Add money via bank transfer or dynamic funding', () => Navigator.pushNamed(context, '/wallet')),
-            _action(Icons.history, 'Transaction history', 'See all wallet activity', () => Navigator.pushNamed(context, '/transactions')),
-            const Divider(),
-            _action(Icons.person, 'Profile', '', () => Navigator.pushNamed(context, '/profile')),
-            _action(Icons.logout, 'Logout', '', () async {
-              await WalletService.logout();
-              if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
-            }),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _bottomNav() => NavigationBar(selectedIndex: 0, onDestinationSelected: (index) { if (index == 1) Navigator.pushNamed(context, '/orders'); if (index == 2) Navigator.pushNamed(context, '/transactions'); if (index == 3) Navigator.pushNamed(context, '/wallet'); if (index == 4) Navigator.pushNamed(context, '/profile'); }, destinations: const [NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'), NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'My Orders'), NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Transactions'), NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Wallet'), NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile')]);
 
-  Widget _action(IconData icon, String title, String subtitle, VoidCallback onTap) {
-    return ListTile(
-      leading: Container(width: 44, height: 44, decoration: BoxDecoration(color: _navy.withOpacity(.06), borderRadius: BorderRadius.circular(13)), child: Icon(icon, color: _navy)),
-      title: Text(title, style: const TextStyle(color: _navy, fontWeight: FontWeight.w800)),
-      subtitle: subtitle.isEmpty ? null : Text(subtitle),
-      onTap: () { Navigator.pop(context); onTap(); },
-    );
-  }
+  void _showMore() => showModalBottomSheet<void>(context: context, showDragHandle: true, backgroundColor: Colors.white, builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [const Padding(padding: EdgeInsets.fromLTRB(20, 4, 20, 12), child: Align(alignment: Alignment.centerLeft, child: Text('Wallet actions', style: TextStyle(color: _navy, fontSize: 20, fontWeight: FontWeight.w900)))), _action(Icons.account_balance, 'Withdraw to bank', 'Send your wallet balance to your bank account', () => _soon('Withdraw to bank')), _action(Icons.add_card, 'Top up wallet', 'Add money via bank transfer or dynamic funding', () => Navigator.pushNamed(context, '/wallet')), _action(Icons.history, 'Transaction history', 'See all wallet activity', () => Navigator.pushNamed(context, '/transactions')), const Divider(), _action(Icons.person, 'Profile', '', () => Navigator.pushNamed(context, '/profile')), _action(Icons.logout, 'Logout', '', () async { await WalletService.logout(); if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); })])));
 
-  void _showSimDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('SIM Services'),
-        content: const Text('We sell MTN, Airtel, 9mobile and Glo SIM cards, and we also provide MTN ↔ Airtel SIM swap service.\n\nFor availability, price and home service, chat with us on WhatsApp.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-          ElevatedButton.icon(
-            onPressed: () { Navigator.pop(context); _whatsapp('Hello H.salah Communication, I want to buy a SIM / request an MTN or Airtel SIM swap.'); },
-            icon: const Icon(Icons.chat),
-            label: const Text('Chat with us'),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _action(IconData icon, String title, String subtitle, VoidCallback onTap) => ListTile(leading: Container(width: 44, height: 44, decoration: BoxDecoration(color: _navy.withOpacity(.06), borderRadius: BorderRadius.circular(13)), child: Icon(icon, color: _navy)), title: Text(title, style: const TextStyle(color: _navy, fontWeight: FontWeight.w800)), subtitle: subtitle.isEmpty ? null : Text(subtitle), onTap: () { Navigator.pop(context); onTap(); });
+
+  void _showSimDialog() => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('SIM Services'), content: const Text('We sell MTN, Airtel, T2 and Glo SIM cards, and we also provide MTN ↔ Airtel SIM swap service.\n\nFor availability, price and home service, chat with us on WhatsApp.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')), ElevatedButton.icon(onPressed: () { Navigator.pop(context); _whatsapp('Hello H.salah Communication, I want to buy a SIM / request an MTN or Airtel SIM swap.'); }, icon: const Icon(Icons.chat), label: const Text('Chat with us'))]));
 }
 
 class _Service {
