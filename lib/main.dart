@@ -8,6 +8,8 @@ import 'screens/admin_dashboard_screen.dart';
 import 'screens/airtime_screen.dart';
 import 'screens/airtime_to_cash_screen.dart';
 import 'screens/app_lock_screen.dart';
+import 'screens/appearance_screen.dart';
+import 'screens/change_password_screen.dart';
 import 'screens/data_screen.dart';
 import 'screens/fund_crypto_screen.dart';
 import 'screens/login_screen.dart';
@@ -18,6 +20,7 @@ import 'screens/transactions_screen.dart';
 import 'screens/transfer_to_bank_screen.dart';
 import 'screens/ussd_screen.dart';
 import 'screens/wallet_screen.dart';
+import 'theme_controller.dart';
 import 'widgets/customer_care_button.dart';
 
 const supabaseUrl = 'https://txuiicqlkyndwtizlouz.supabase.co';
@@ -26,6 +29,7 @@ final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppThemeController.load();
   await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);
   runApp(const KardamDigitalApp());
 }
@@ -35,30 +39,38 @@ class KardamDigitalApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const navy = Color(0xFF061B49);
+    const navy2 = Color(0xFF0A2C68);
     const gold = Color(0xFFC89B3C);
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'HAMZA S. KARDAM DIGITAL APP',
-      navigatorKey: _navigatorKey,
-      theme: ThemeData(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: navy), scaffoldBackgroundColor: const Color(0xFFF5F7FB), fontFamily: 'Roboto', appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white), inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5)))),
-      routes: {
-        '/login': (_) => const LoginScreen(),
-        '/register': (_) => const RegisterScreen(),
-        '/home': (_) => const HomeScreen(),
-        '/wallet': (_) => const WalletScreen(),
-        '/transactions': (_) => const TransactionsScreen(),
-        '/orders': (_) => const OrdersScreen(),
-        '/profile': (_) => const ProfileScreen(),
-        '/data': (_) => const DataScreen(),
-        '/airtime': (_) => const AirtimeScreen(),
-        '/airtime-to-cash': (_) => const AirtimeToCashScreen(),
-        '/fund-crypto': (_) => const FundCryptoScreen(),
-        '/transfer-to-bank': (_) => const TransferToBankScreen(),
-        '/ussd': (_) => const UssdScreen(),
-        '/admin': (_) => const AdminDashboardScreen(),
-      },
-      home: const AuthGate(),
-      builder: (context, child) => AppShell(child: child ?? const SizedBox.shrink()),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: AppThemeController.mode,
+      builder: (context, mode, _) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'HAMZA S. KARDAM DIGITAL APP',
+        navigatorKey: _navigatorKey,
+        themeMode: mode,
+        theme: ThemeData(useMaterial3: true, brightness: Brightness.light, colorScheme: ColorScheme.fromSeed(seedColor: navy), scaffoldBackgroundColor: const Color(0xFFF5F7FB), fontFamily: 'Roboto', appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white), inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5)))),
+        darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark, colorScheme: ColorScheme.fromSeed(seedColor: gold, brightness: Brightness.dark), scaffoldBackgroundColor: const Color(0xFF101216), fontFamily: 'Roboto', appBarTheme: const AppBarTheme(backgroundColor: navy, foregroundColor: Colors.white), inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: Color(0xFF1B1D22), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(14)), borderSide: BorderSide(color: gold, width: 1.5)))),
+        routes: {
+          '/login': (_) => const LoginScreen(),
+          '/register': (_) => const RegisterScreen(),
+          '/home': (_) => const HomeScreen(),
+          '/wallet': (_) => const WalletScreen(),
+          '/transactions': (_) => const TransactionsScreen(),
+          '/orders': (_) => const OrdersScreen(),
+          '/profile': (_) => const ProfileScreen(),
+          '/data': (_) => const DataScreen(),
+          '/airtime': (_) => const AirtimeScreen(),
+          '/airtime-to-cash': (_) => const AirtimeToCashScreen(),
+          '/fund-crypto': (_) => const FundCryptoScreen(),
+          '/transfer-to-bank': (_) => const TransferToBankScreen(),
+          '/ussd': (_) => const UssdScreen(),
+          '/admin': (_) => const AdminDashboardScreen(),
+          '/appearance': (_) => const AppearanceScreen(),
+          '/change-password': (_) => const ChangePasswordScreen(),
+        },
+        home: const AuthGate(),
+        builder: (context, child) => AppShell(child: child ?? const SizedBox.shrink()),
+      ),
     );
   }
 }
