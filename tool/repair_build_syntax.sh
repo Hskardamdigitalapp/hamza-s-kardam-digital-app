@@ -3,7 +3,7 @@ set -euo pipefail
 python3 - <<'PY'
 from pathlib import Path
 
-# Repair known source-layout/API issues, then allow non-error analyzer diagnostics.
+# Repair only known source/API issues before the release build.
 fixes = {
     'lib/main.dart': [
         ("await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);", "await Supabase.initialize(url: supabaseUrl, publishableKey: supabasePublishableKey);"),
@@ -18,22 +18,20 @@ for name, pairs in fixes.items():
         s = s.replace(old, new)
     p.write_text(s)
 
-# Repair the two known parenthesis mistakes only when the old pattern exists.
+# Repair known parenthesis mistakes only when the old pattern exists.
 p = Path('lib/screens/profile_screen.dart')
-s = p.read_text()
-old = 'BorderRadius.circular(16)))), '
-if old in s:
-    s = s.replace(old, 'BorderRadius.circular(16))))), ', 1)
-else:
-    old = 'BorderRadius.circular(16)))),\n'
-    if old in s:
-        s = s.replace(old, 'BorderRadius.circular(16))))),\n', 1)
-p.write_text(s)
+if p.exists():
+    s = p.read_text()
+    s = s.replace('BorderRadius.circular(16)))), ', 'BorderRadius.circular(16))))), ', 1)
+    s = s.replace('BorderRadius.circular(16)))),\n', 'BorderRadius.circular(16))))),\n', 1)
+    p.write_text(s)
 
 p = Path('lib/screens/ussd_screen.dart')
-s = p.read_text()
-s = s.replace(' ]))\n    ])),', ' ])))\n    ])),', 1)
-p.write_text(s)
+if p.exists():
+    s = p.read_text()
+    s = s.replace(' ]))\n    ])),', ' ])))\n    ])),', 1)
+    p.write_text(s)
 PY
 
-dart analyze --no-fatal-infos --no-fatal-warnings
+# Analyzer is validation only; informational diagnostics must not block the release build.
+dart analyze
