@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/wallet_service.dart';
+import 'appearance_screen.dart';
+import 'change_password_screen.dart';
+import 'customer_care_screen.dart';
 
 const _bg = Color(0xFFF5F7FB);
 const _navy = Color(0xFF061B49);
@@ -74,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _confirmDelete() async {
     double balance = 0;
-    try { balance = await WalletService.getBalance(); } catch (e) { if (mounted) _snack('Unable to check wallet balance. Try again.'); return; }
+    try { balance = await WalletService.getBalance(); } catch (_) { if (mounted) _snack('Unable to check wallet balance. Try again.'); return; }
     if (balance > 0) {
       if (!mounted) return;
       await showDialog<void>(context: context, builder: (c) => AlertDialog(
@@ -96,6 +99,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try { await WalletService.deleteAccount(); if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); }
     catch (e) { if (mounted) _snack(e.toString().replaceFirst('Exception: ', '')); }
   }
+
+  void _open(Widget screen) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +125,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _item(Icons.receipt_long_outlined, 'Transaction History', 'Review your past transactions', () => Navigator.pushNamed(context, '/transactions')),
             _item(Icons.dialpad_outlined, 'Transaction PIN', 'Change your transaction PIN', () => _snack('Transaction PIN will be secured before wallet payments are enabled.')),
             _item(Icons.fingerprint, 'Biometrics', 'Use fingerprint / face ID for secure actions', () => _snack('Device biometric authentication is available for supported secure actions.')),
-            _item(Icons.lock_reset, 'Change Password', 'Update your login password', () => _snack('Password reset is available from the login screen.')),
+            _item(Icons.lock_reset, 'Change Password', 'Update your login password', () => _open(const ChangePasswordScreen())),
             _item(Icons.card_giftcard, 'Refer & Earn', 'Invite friends and earn rewards', () => _snack('Referral rewards will activate with the rewards backend.')),
-            _item(Icons.palette_outlined, 'Appearance', 'Dark blue, white & dark golden theme', () => _snack('HAMZA S. KARDAM theme: dark blue, white and dark golden.')),
-            _item(Icons.headset_mic_outlined, 'Customer Support', 'Access help and support', () => _snack('Customer support is available through the app support channel.')),
-            _item(Icons.delete_forever_outlined, 'Delete Account', 'Permanently remove your account', _confirmDelete, danger: true),
+            _item(Icons.palette_outlined, 'Appearance', 'Choose System default, Light or Dark', () => _open(const AppearanceScreen())),
+            _item(Icons.headset_mic_outlined, 'Customer Care', 'AI Assistant or talk to a real person', () => _open(const CustomerCareScreen())),
             FutureBuilder<bool>(future: _adminFuture, builder: (context, a) => a.data == true ? _item(Icons.admin_panel_settings_outlined, 'Admin Dashboard', 'Manage users, KYC and service activity', () => Navigator.pushNamed(context, '/admin')) : const SizedBox.shrink()),
+            _item(Icons.delete_forever_outlined, 'Delete Account', 'Permanently remove your account', _confirmDelete, danger: true),
             const SizedBox(height: 12),
             SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: () async { await WalletService.logout(); if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); }, icon: const Icon(Icons.logout), label: const Text('Logout', style: TextStyle(fontWeight: FontWeight.w900)), style: ElevatedButton.styleFrom(backgroundColor: _danger, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
           ]));
