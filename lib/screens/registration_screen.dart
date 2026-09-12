@@ -1,9 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-const _bg=Color(0xFF061B49); const _panel=Color(0xFF0A2C68); const _gold=Color(0xFFB8860B);
-class RegistrationScreen extends StatelessWidget{const RegistrationScreen({super.key});
- Future<void> _open(String url)async{await launchUrl(Uri.parse(url),mode:LaunchMode.externalApplication);}
- @override Widget build(BuildContext context)=>Scaffold(backgroundColor:_bg,appBar:AppBar(backgroundColor:_bg,foregroundColor:Colors.white,elevation:0,leading:IconButton(onPressed:()=>Navigator.pop(context),icon:const Icon(Icons.arrow_back_ios_new)),title:const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Registration',style:TextStyle(fontSize:25,fontWeight:FontWeight.w900)),Text('Pilgrimage & business registration',style:TextStyle(color:Colors.white60,fontSize:14))])),body:ListView(padding:const EdgeInsets.all(22),children:[_hero(),const SizedBox(height:25),const Text('CHOOSE A SERVICE',style:TextStyle(color:Colors.white60,fontWeight:FontWeight.w900,letterSpacing:1.2)),const SizedBox(height:12),_card(context,Icons.mosque,'Hajj / Umrah','Packages, flights & visa','bilalsadastravels.com',()=>_open('https://bilalsadastravels.com')),const SizedBox(height:14),_card(context,Icons.verified,'CAC & Registrations','Register your business with CAC','Start application',()=>_open('https://pre.cac.gov.ng/')),const SizedBox(height:14),_card(context,Icons.receipt_long,'My CAC applications','View submitted applications','Open',()=>ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('CAC application history will be connected to the provider workflow.'))))]);
- Widget _hero()=>Container(padding:const EdgeInsets.all(24),decoration:BoxDecoration(gradient:const LinearGradient(colors:[_panel,_bg]),borderRadius:BorderRadius.circular(25),border:Border.all(color:_gold)),child:Row(children:[const Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Get registered',style:TextStyle(color:Colors.white,fontSize:28,fontWeight:FontWeight.w900)),SizedBox(height:7),Text('Plan your Hajj/Umrah or register your business — all in one place.',style:TextStyle(color:Colors.white70,fontSize:16))])),Container(width:75,height:75,decoration:const BoxDecoration(color:_gold,shape:BoxShape.circle),child:const Icon(Icons.assignment_turned_in,color:_bg,size:40))]));
- Widget _card(BuildContext context,IconData icon,String title,String desc,String action,VoidCallback onTap)=>InkWell(onTap:onTap,borderRadius:BorderRadius.circular(20),child:Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(color:_panel,borderRadius:BorderRadius.circular(20),border:Border.all(color:Colors.white10)),child:Row(children:[Container(width:60,height:60,decoration:BoxDecoration(color:_gold.withValues(alpha:.12),borderRadius:BorderRadius.circular(16)),child:Icon(icon,color:_gold,size:32)),const SizedBox(width:15),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:const TextStyle(color:Colors.white,fontSize:18,fontWeight:FontWeight.w900)),const SizedBox(height:5),Text(desc,style:const TextStyle(color:Colors.white60,height:1.3)),const SizedBox(height:8),Text(action,style:const TextStyle(color:_gold,fontWeight:FontWeight.w900))]))]));
+
+const _bg = Color(0xFF061B49);
+const _panel = Color(0xFF0A2C68);
+const _gold = Color(0xFFB8860B);
+
+class RegistrationScreen extends StatelessWidget {
+  const RegistrationScreen({super.key});
+
+  Future<void> _open(String url) async {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _bg,
+      appBar: AppBar(
+        backgroundColor: _bg,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new)),
+        title: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Registration', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
+          Text('Pilgrimage & business registration', style: TextStyle(color: Colors.white60, fontSize: 14)),
+        ]),
+      ),
+      body: ListView(padding: const EdgeInsets.all(22), children: [
+        _hero(),
+        const SizedBox(height: 25),
+        const Text('CHOOSE A SERVICE', style: TextStyle(color: Colors.white60, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+        const SizedBox(height: 12),
+        _card(context, Icons.mosque, 'Hajj / Umrah', 'Packages, flights & visa', 'bilalsadastravels.com', () => _open('https://bilalsadastravels.com')),
+        const SizedBox(height: 14),
+        _card(context, Icons.verified, 'CAC & Registrations', 'Register your business with CAC', 'Start application', () => _open('https://pre.cac.gov.ng/')),
+        const SizedBox(height: 14),
+        _card(context, Icons.receipt_long, 'My CAC applications', 'View submitted applications', 'Open', () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CAC application history will be connected to the provider workflow.')))),
+      ]),
+    );
+  }
+
+  Widget _hero() => Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(gradient: const LinearGradient(colors: [_panel, _bg]), borderRadius: BorderRadius.circular(25), border: Border.all(color: _gold)),
+    child: Row(children: [
+      const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Get registered', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
+        SizedBox(height: 7),
+        Text('Plan your Hajj/Umrah or register your business — all in one place.', style: TextStyle(color: Colors.white70, fontSize: 16)),
+      ])),
+      Container(width: 75, height: 75, decoration: const BoxDecoration(color: _gold, shape: BoxShape.circle), child: const Icon(Icons.assignment_turned_in, color: _bg, size: 40)),
+    ]),
+  );
+
+  Widget _card(BuildContext context, IconData icon, String title, String desc, String action, VoidCallback onTap) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(20),
+    child: Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: _panel, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white10)),
+      child: Row(children: [
+        Container(width: 60, height: 60, decoration: BoxDecoration(color: _gold.withValues(alpha: .12), borderRadius: BorderRadius.circular(16)), child: Icon(icon, color: _gold, size: 32)),
+        const SizedBox(width: 15),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 5),
+          Text(desc, style: const TextStyle(color: Colors.white60, height: 1.3)),
+          const SizedBox(height: 8),
+          Text(action, style: const TextStyle(color: _gold, fontWeight: FontWeight.w900)),
+        ])),
+      ]),
+    ),
+  );
 }
