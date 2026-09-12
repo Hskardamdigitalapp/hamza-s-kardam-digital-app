@@ -61,13 +61,18 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --debug --target=lib/main.dart --no-pub
+      - name: Build optimized release APK
+        run: flutter build apk --release --target=lib/main.dart --no-pub
 
-      - name: Upload APK
+      - name: Build Play Store App Bundle
+        run: flutter build appbundle --release --target=lib/main.dart --no-pub
+
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: hamza-digital-app-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: hamza-digital-app-release
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
 
-# Triggered rebuild for the latest backend-integrated app state.
+# Release build: optimized for distribution; debug APKs are intentionally not used for final delivery.
