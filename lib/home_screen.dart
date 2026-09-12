@@ -66,6 +66,81 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showHomeServiceDialog() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: _goldLight,
+                    child: Icon(Icons.home_work_outlined, color: _navy),
+                  ),
+                  SizedBox(width: 12),
+                  Text('Home Service', style: TextStyle(color: _navy, fontSize: 22, fontWeight: FontWeight.w900)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Need a SIM, SIM swap, data or another digital service at home? Request our home service and we will contact you.',
+                style: TextStyle(color: Colors.black87, height: 1.35),
+              ),
+              const SizedBox(height: 16),
+              _contactRow(Icons.call_outlined, 'Call', '0707 777 7636', _call),
+              const SizedBox(height: 10),
+              _contactRow(Icons.chat_outlined, 'WhatsApp', '09044444921', _whatsapp),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _whatsapp('Hello H.salah Communication, I want to request home service.');
+                  },
+                  icon: const Icon(Icons.home_work_outlined),
+                  label: const Text('Request Home Service'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _contactRow(IconData icon, String label, String value, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: _navy.withValues(alpha: .05),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: _navy),
+            const SizedBox(width: 10),
+            Expanded(child: Text('$label: $value', style: const TextStyle(color: _navy, fontWeight: FontWeight.w800))),
+            const Icon(Icons.arrow_forward_ios, color: _gold, size: 15),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = WalletService.currentUser;
@@ -219,10 +294,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final services = <_Service>[
       _Service(Icons.wifi, 'Buy Data', () => Navigator.pushNamed(context, '/data')),
       _Service(Icons.phone_android, 'Buy Airtime', () => Navigator.pushNamed(context, '/airtime')),
+      _Service(Icons.home_work_outlined, 'Home Service', _showHomeServiceDialog),
       _Service(Icons.currency_exchange, 'Airtime to\nCash', () => Navigator.pushNamed(context, '/airtime-to-cash'), true),
       _Service(Icons.sim_card, 'Buy SIMs', _showSimDialog),
       _Service(Icons.swap_horiz, 'SIM Swap', _showSimDialog),
-      _Service(Icons.home_work_outlined, 'Home Service', () => _whatsapp('Hello H.salah Communication, I need your home service. Please let me know how you can assist me.')),
       _Service(Icons.currency_bitcoin, 'Crypto', () => Navigator.pushNamed(context, '/fund-crypto')),
       _Service(Icons.card_giftcard, 'Gift With\nLove', () => _soon('Gift With Love')),
       _Service(Icons.bolt, 'Electricity', () => _soon('Electricity')),
@@ -329,53 +404,13 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Icon(Icons.storefront_outlined, color: _gold),
               SizedBox(width: 9),
-              Text('Visit Our Shop', style: TextStyle(color: _navy, fontSize: 17, fontWeight: FontWeight.w900)),
+              Text('Shop / Business information', style: TextStyle(color: _navy, fontSize: 17, fontWeight: FontWeight.w900)),
             ],
           ),
           const SizedBox(height: 8),
+          const Text('Adreshin shago', style: TextStyle(color: _navy, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 4),
           const Text(_shopAddress, style: TextStyle(color: Colors.black87, fontSize: 13, height: 1.35)),
-          const SizedBox(height: 12),
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.delivery_dining, color: _navy),
-              SizedBox(width: 8),
-              Expanded(child: Text('Home service available — need a SIM or another service? We can come to your home.', style: TextStyle(color: _navy, fontWeight: FontWeight.w700, fontSize: 13))),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(),
-          const SizedBox(height: 6),
-          InkWell(
-            onTap: _call,
-            child: const Row(
-              children: [
-                Icon(Icons.call_outlined, color: _navy),
-                SizedBox(width: 10),
-                Text('Call  0707 777 7636', style: TextStyle(color: _navy, fontWeight: FontWeight.w800)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 9),
-          InkWell(
-            onTap: _whatsapp,
-            child: const Row(
-              children: [
-                Icon(Icons.chat_outlined, color: _navy),
-                SizedBox(width: 10),
-                Text('WhatsApp  09044444921', style: TextStyle(color: _navy, fontWeight: FontWeight.w800)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _whatsapp('Hello H.salah Communication, I want to request home service.'),
-              icon: const Icon(Icons.chat),
-              label: const Text('Request Home Service'),
-            ),
-          ),
         ],
       ),
     );
