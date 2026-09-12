@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -85,7 +86,7 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   final _storage = const FlutterSecureStorage();
   StreamSubscription<AuthState>? _authSubscription;
   bool _locked = false;
@@ -133,22 +134,20 @@ class _AppShellState extends State<AppShell> {
     }
 
     final user = session.user;
-    final key = _pinKey(user.id);
-    final savedPin = await _storage.read(key: key);
+    final savedPin = await _storage.read(key: _pinKey(user.id));
     if (!mounted) return;
     setState(() {
       _userId = user.id;
       _displayName = _nameFor(user);
       _setupPin = savedPin == null;
-      _locked = forceLock ? savedPin != null : false;
+      _locked = forceLock && savedPin != null;
     });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.paused) return;
-    final session = Supabase.instance.client.auth.currentSession;
-    final userId = session?.user.id;
+    final userId = Supabase.instance.client.auth.currentSession?.user.id;
     if (userId == null) return;
     _storage.read(key: _pinKey(userId)).then((pin) {
       if (pin != null && mounted) setState(() => _locked = true);
@@ -227,21 +226,13 @@ class _AppShellState extends State<AppShell> {
       return;
     }
     if (await _confirmExit()) {
-      // SystemNavigator.pop() is intentionally used only after an explicit user confirmation.
       await Future<void>.delayed(const Duration(milliseconds: 80));
-      if (mounted) {
-        // ignore: use_build_context_synchronously
-        Navigator.of(context).pop();
-      }
+      await SystemNavigator.pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final child = Navigator.maybeOf(context) == null
-        ? const AuthGate()
-        : const AuthGate();
-
     return PopScope<void>(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -250,7 +241,7 @@ class _AppShellState extends State<AppShell> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          child,
+          const AuthGate(),
           if (_locked && _userId != null)
             Positioned.fill(
               child: AppLockScreen(
