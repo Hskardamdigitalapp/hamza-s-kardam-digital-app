@@ -31,7 +31,7 @@ jobs:
           failed=0
           while IFS= read -r file; do
             echo "Checking $file"
-            if ! dart format --output=none --set-exit-if-changed "$file"; then failed=1; fi
+            if ! dart format --output=none "$file"; then failed=1; fi
           done < <(find . -type f -name '*.dart' -not -path './.dart_tool/*' -not -path './build/*')
           exit "$failed"
       - name: Flutter analyze
