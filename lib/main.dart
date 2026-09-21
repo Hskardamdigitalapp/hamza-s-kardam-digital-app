@@ -30,7 +30,7 @@ final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppThemeController.load();
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);
+  await Supabase.initialize(url: supabaseUrl, publishableKey: supabasePublishableKey);
   runApp(const KardamDigitalApp());
 }
 
@@ -39,7 +39,6 @@ class KardamDigitalApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const navy = Color(0xFF061B49);
-    const navy2 = Color(0xFF0A2C68);
     const gold = Color(0xFFC89B3C);
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: AppThemeController.mode,
